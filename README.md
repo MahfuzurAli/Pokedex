@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Pokédex Project
 
-First, run the development server:
+## Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This is a simple Pokédex web application built using **Next.js** and **TypeScript**. It fetches data from the [PokeAPI](https://pokeapi.co/) to display a list of Pokémon along with their respective sprites. The application is designed to allow users to explore information about various Pokémon in a grid layout, with the ability to view their names and unique identifiers (IDs).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Pokémon List**: Displays a list of the first 1025 Pokémon, sourced from the PokeAPI.
+- **Sprite Display**: Shows each Pokémon's sprite in a clean, responsive layout.
+- **Responsive Design**: The layout adapts to different screen sizes (mobile, tablet, desktop).
+- **Loading State**: A simple loading indicator is displayed while the Pokémon data is being fetched.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Technologies Used
 
-## Learn More
+- **Next.js**: A React framework for building web applications.
+- **TypeScript**: A statically typed superset of JavaScript.
+- **Tailwind CSS**: A utility-first CSS framework for building responsive and customizable UI.
 
-To learn more about Next.js, take a look at the following resources:
+## Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Clone the repository:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   git clone https://github.com/yourusername/pokedex-project.git
+   cd pokedex-project
+   ```
 
-## Deploy on Vercel
+2. Install the dependencies:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   npm install
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. Run the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+   The application will be accessible at `http://localhost:3000`.
+
+## Current Features
+
+- Displays a list of Pokémon with their names and IDs.
+- Displays Pokémon sprites from the PokeAPI.
+
+## Future Improvements
+
+- **Official Artwork**: Replace sprites with official Pokémon artwork for a more polished look.
+- **Search Functionality**: Add a search bar to allow users to search for specific Pokémon by name or ID.
+- **Detailed Information**: Add more detailed information about each Pokémon, such as types, abilities, and stats.
+- **Pagination**: Implement pagination to load Pokémon in smaller chunks for better performance with larger datasets.
+- **Favorites**: Allow users to mark Pokémon as favorites and save them locally.
+
+## License
+
+This project is open-source and available under the [MIT License](LICENSE).
