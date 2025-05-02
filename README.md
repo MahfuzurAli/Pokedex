@@ -3,7 +3,7 @@
 
 ## Overview
 
-This is a simple Pokédex web application built using **Next.js** and **TypeScript**. It fetches data from the [PokeAPI](https://pokeapi.co/) to display a list of Pokémon along with their respective sprites. The application is designed to allow users to explore information about various Pokémon in a grid layout, with the ability to view their names and unique identifiers (IDs).
+This is a simple Pokédex web application built using **Next.js** and **shadcn/ui**. It fetches data from the [PokeAPI](https://pokeapi.co/) to display a list of Pokémon along with their respective sprites. The application is designed to allow users to explore information about various Pokémon in a grid layout, with the ability to view their names and unique identifiers (IDs).
 
 ## Features
 
