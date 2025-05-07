@@ -1,4 +1,6 @@
-// app/page.tsx
+'use client';
+
+import { useEffect, useState } from "react";
 import { fetchAllPokemon } from "@/lib/pokeapi";
 
 const typeColors: Record<string, string> = {
@@ -24,14 +26,72 @@ const typeColors: Record<string, string> = {
   unknown: "bg-gray-600"
 };
 
-export default async function HomePage() {
-  const pokemonList = await fetchAllPokemon();
+type Pokemon = {
+  id: number;
+  name: string;
+  sprite: string;
+  types: string[];
+};
+
+export default function HomePage() {
+  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await fetchAllPokemon();
+      setPokemonList(data);
+    };
+    loadData();
+  }, []);
+
+  const filteredList = pokemonList.filter((pokemon) => {
+    const matchesName = pokemon.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = selectedType ? pokemon.types.includes(selectedType) : true;
+    return matchesName && matchesType;
+  });
+
+  const allTypes = Array.from(new Set(pokemonList.flatMap(p => p.types))).sort();
 
   return (
     <main className="p-4">
       <h1 className="text-3xl font-bold mb-4">Pokédex</h1>
+
+      <input
+        type="text"
+        placeholder="Search Pokémon..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-4 p-2 border rounded w-full sm:w-1/2"
+      />
+
+      <div className="flex flex-wrap gap-2 mb-4">
+        {allTypes.map((type) => (
+          <button
+          key={type}
+          onClick={() => setSelectedType(type)}
+          className={`text-white text-xs px-3 py-1 rounded-full font-semibold capitalize ${
+            typeColors[type] || typeColors["unknown"]
+          } ${selectedType === type ? "border-2 border-black" : "border-2 border-transparent"} box-border`}
+          style={{ boxSizing: "border-box" }}
+        >
+          {type}
+        </button>
+        
+        ))}
+        {selectedType && (
+          <button
+            onClick={() => setSelectedType(null)}
+            className="bg-gray-300 text-black px-3 py-1 rounded-full font-medium"
+          >
+            Clear Filter
+          </button>
+        )}
+      </div>
+
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {pokemonList.map((pokemon) => (
+        {filteredList.map((pokemon) => (
           <li
             key={pokemon.id}
             className="bg-white rounded shadow p-4 flex justify-between items-center"
@@ -64,6 +124,10 @@ export default async function HomePage() {
           </li>
         ))}
       </ul>
+
+      {filteredList.length === 0 && (
+        <p className="text-center mt-8 text-gray-600">No Pokémon found.</p>
+      )}
     </main>
   );
 }
