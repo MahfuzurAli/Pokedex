@@ -10,7 +10,7 @@ const typeColors: Record<string, string> = {
   electric: "bg-yellow-400",
   grass: "bg-green-500",
   ice: "bg-cyan-300",
-  fighting: "bg-orange-700",
+  fighting: "bg-orange-600",
   poison: "bg-purple-500",
   ground: "bg-yellow-700",
   flying: "bg-indigo-300",
@@ -66,29 +66,31 @@ export default function HomePage() {
         className="mb-4 p-2 border rounded w-full sm:w-1/2"
       />
 
-      <div className="flex flex-wrap gap-2 mb-4">
-        {allTypes.map((type) => (
-          <button
-          key={type}
-          onClick={() => setSelectedType(type)}
-          className={`text-white text-xs px-3 py-1 rounded-full font-semibold capitalize ${
-            typeColors[type] || typeColors["unknown"]
-          } ${selectedType === type ? "border-2 border-black" : "border-2 border-transparent"} box-border`}
-          style={{ boxSizing: "border-box" }}
-        >
-          {type}
-        </button>
-        
-        ))}
-        {selectedType && (
-          <button
-            onClick={() => setSelectedType(null)}
-            className="bg-gray-300 text-black px-3 py-1 rounded-full font-medium"
-          >
-            Clear Filter
-          </button>
-        )}
-      </div>
+      <div className="flex flex-wrap gap-2 mb-4 items-center">
+  {allTypes.map((type) => (
+    <button
+      key={type}
+      onClick={() => setSelectedType(type)}
+      className={`text-white text-xs px-3 py-1 rounded-full font-semibold capitalize 
+        ${typeColors[type] || typeColors["unknown"]} 
+        ${selectedType === type ? "border-2 border-black" : "border-2 border-transparent"}
+        h-8
+      `}
+    >
+      {type}
+    </button>
+  ))}
+
+  {selectedType && (
+    <button
+      onClick={() => setSelectedType(null)}
+      className="text-xs px-3 py-1 rounded-full font-semibold capitalize bg-gray-300 text-black border-2 border-transparent h-8"
+    >
+      Clear Filter
+    </button>
+  )}
+</div>
+
 
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {filteredList.map((pokemon) => (
@@ -119,7 +121,7 @@ export default function HomePage() {
             <img
               src={pokemon.sprite}
               alt={pokemon.name}
-              className="w-15 h-15"
+              className="w-17 h-17"
             />
           </li>
         ))}
