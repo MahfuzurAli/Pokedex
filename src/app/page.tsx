@@ -40,9 +40,13 @@ type Pokemon = {
 
 function formatPokemonName(name: string) {
   return name
-  .split("-")
-  .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-  .join(' ');
+    .split("-")
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function normalizeString(str: string) {
+  return str.toLowerCase().replace(/[-_]/g, ' ').trim();
 }
 
 export default function HomePage() {
@@ -84,15 +88,28 @@ export default function HomePage() {
   };
 
   // Filter Pokémon based on search, type, and generation filters
+  function normalizeString(str: string) {
+    return str.toLowerCase().replace(/[-_]/g, ' ').trim();
+  }
+
+  const normalizedSearch = normalizeString(searchTerm);
+
   const filteredList = pokemonList.filter(pokemon => {
-    const matchesName = pokemon.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesName = normalizeString(pokemon.name).includes(normalizedSearch);
+    const matchesId = pokemon.id.toString().includes(normalizedSearch);
+    const matchesAbility = pokemon.abilities.some(ability =>
+      normalizeString(ability).includes(normalizedSearch)
+    );
+
     const matchesType = selectedType ? pokemon.types.includes(selectedType) : true;
     const matchesGeneration = selectedGeneration
       ? pokemon.id >= genRanges[selectedGeneration][0] && pokemon.id <= genRanges[selectedGeneration][1]
       : true;
 
-    return matchesName && matchesType && matchesGeneration;
+    return (matchesName || matchesId || matchesAbility) && matchesType && matchesGeneration;
   });
+
+
 
   // Custom order for type buttons
   const customOrder = [
@@ -116,7 +133,7 @@ export default function HomePage() {
       {/* Search Input */}
       <input
         type="text"
-        placeholder="Search Pokémon..."
+        placeholder="Search by name, number or ability..."
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
         className="mb-4 p-2 border rounded w-full sm:w-1/2"
