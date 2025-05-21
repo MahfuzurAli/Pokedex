@@ -50,6 +50,7 @@ export default function HomePage() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedGeneration, setSelectedGeneration] = useState<string | null>(null);
   const [imageStyle, setImageStyle] = useState<'official' | 'home' | 'sprite'>('official');
+  const [sortOption, setSortOption] = useState("number-asc");
 
   useEffect(() => {
     async function loadData() {
@@ -105,6 +106,23 @@ export default function HomePage() {
     return (matchesName || matchesId || matchesAbility) && matchesType && matchesGeneration;
   });
 
+  // Apply Sorting
+  const sortedList = [...filteredList].sort((a, b) => {
+    switch (sortOption) {
+      case "number-asc":
+        return a.id - b.id;
+      case "number-desc":
+        return b.id - a.id;
+      case "name-asc":
+        return a.name.localeCompare(b.name);
+      case "name-desc":
+        return b.name.localeCompare(a.name);
+      default:
+        return 0;
+    }
+  });
+
+
 
   // Custom order for type buttons
   const customOrder = [
@@ -125,14 +143,28 @@ export default function HomePage() {
     <main className="p-4">
       <h1 className="text-3xl font-bold mb-4">Pokédex</h1>
 
-      {/* Search Input */}
-      <input
-        type="text"
-        placeholder="Search by name, number or ability..."
-        value={searchTerm}
-        onChange={e => setSearchTerm(e.target.value)}
-        className="mb-4 p-2 border rounded w-full sm:w-1/2"
-      />
+      {/* Search Bar + Sort Dropdown */}
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:gap-4">
+        <input
+          type="text"
+          placeholder="Search by name, number or ability..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="p-2 border rounded w-full sm:w-1/2"
+        />
+
+        <select
+          value={sortOption}
+          onChange={e => setSortOption(e.target.value)}
+          className="mt-2 sm:mt-0 p-2 border rounded w-full sm:w-auto text-sm"
+        >
+          <option value="number-asc">Sort by Number (1-1025)</option>
+          <option value="number-desc">Sort by Number (1025-1)</option>
+          <option value="name-asc">Sort by Name (A-Z)</option>
+          <option value="name-desc">Sort by Name (Z-A)</option>
+        </select>
+      </div>
+
 
       {/* Type Filter Buttons */}
       <div className="flex flex-wrap gap-2 mb-4 items-center">
@@ -206,7 +238,7 @@ export default function HomePage() {
 
       {/* Pokémon List */}
       <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        {filteredList.map(pokemon => (
+        {sortedList.map(pokemon => (
           <li
             key={pokemon.id}
             className="bg-white rounded-lg shadow p-3 flex flex-col items-center justify-between aspect-square text-sm"
