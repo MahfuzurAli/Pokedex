@@ -1,20 +1,37 @@
 // lib/pokeapi.ts
 
-export async function fetchAllPokemon() {
-  const limit = 1025; // Decides up to what Pokedex number to you want to display.
+export type Pokemon = {
+  id: number;
+  name: string;
+  images: {
+    sprite: string | null;
+    home: string | null;
+    official: string | null;
+  };
+  types: string[];
+  abilities: string[];
+};
+
+export async function fetchAllPokemon(): Promise<Pokemon[]> {
+  const limit = 1025;
   const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}`);
   const data = await res.json();
 
-  const pokemonList = await Promise.all(
-    data.results.map(async (pokemon: any) => {
+  const pokemonList: Pokemon[] = await Promise.all(
+    data.results.map(async (pokemon: { name: string; url: string }) => {
       const res = await fetch(pokemon.url);
-      const pokemonList = await res.json();
+      const details = await res.json();
+
       return {
-        id: pokemonList.id,
-        name: pokemonList.name,
-        sprite: pokemonList.sprites.other["official-artwork"].front_default,
-        types: pokemonList.types.map((t: any) => t.type.name),
-        abilities: pokemonList.abilities.map((a: any) => a.ability.name),
+        id: details.id,
+        name: details.name,
+        images: {
+          sprite: details.sprites.front_default || null,
+          home: details.sprites.other['home']?.front_default || null,
+          official: details.sprites.other['official-artwork']?.front_default || null,
+        },
+        types: details.types.map((t: any) => t.type.name),
+        abilities: details.abilities.map((a: any) => a.ability.name),
       };
     })
   );
