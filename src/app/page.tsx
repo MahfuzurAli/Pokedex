@@ -38,6 +38,13 @@ type Pokemon = {
   abilities: string[];
 };
 
+function formatPokemonName(name: string) {
+  return name
+  .split("-")
+  .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+  .join(' ');
+}
+
 export default function HomePage() {
   const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -51,6 +58,7 @@ export default function HomePage() {
       // Map to ensure images fields are always strings
       const normalizedData = data.map((pokemon: any) => ({
         ...pokemon,
+        name: formatPokemonName(pokemon.name),
         images: {
           official: pokemon.images.official ?? "",
           home: pokemon.images.home ?? "",
@@ -201,7 +209,7 @@ export default function HomePage() {
               {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
             </span>
 
-            <span className="text-xs text-gray-500 text-center mt-1 italic">
+            <span className="text-s text-gray-500 text-center mt-1 italic">
               {pokemon.abilities
                 .map(ability =>
                   ability
