@@ -12,8 +12,9 @@ export async function fetchAllPokemon() {
       return {
         id: pokemonList.id,
         name: pokemonList.name,
-        sprite: pokemonList.sprites.front_default,
+        sprite: pokemonList.sprites.other["official-artwork"].front_default,
         types: pokemonList.types.map((t: any) => t.type.name),
+        abilities: pokemonList.abilities.map((a: any) => a.ability.name),
       };
     })
   );

@@ -31,6 +31,7 @@ type Pokemon = {
   name: string;
   sprite: string;
   types: string[];
+  abilities: string[];
 };
 
 export default function HomePage() {
@@ -165,6 +166,18 @@ export default function HomePage() {
               #{pokemon.id.toString().padStart(4, "0")}<br />
               {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
             </span>
+
+            <span className="text-s text-gray-500 text-center mt-1 italic">
+              {pokemon.abilities.map(ability =>
+                ability
+                  .split("-")
+                  .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                  .join(" ")
+              ).join(" / ")}
+            </span>
+
+
+
             <div className="flex gap-1 mt-2 flex-wrap justify-center">
               {pokemon.types.map((type) => (
                 <span
