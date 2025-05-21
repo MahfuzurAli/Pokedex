@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchAllPokemon } from "@/lib/pokeapi";
+import { formatPokemonName } from "@/lib/localNameMap";
 
 const typeColors: Record<string, string> = {
   normal: "bg-gray-400",
@@ -28,6 +29,7 @@ const typeColors: Record<string, string> = {
 
 type Pokemon = {
   id: number;
+  rawName: string;
   name: string;
   images: {
     official: string;
@@ -38,15 +40,8 @@ type Pokemon = {
   abilities: string[];
 };
 
-function formatPokemonName(name: string) {
-  return name
-    .split("-")
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
-
 function normalizeString(str: string) {
-  return str.toLowerCase().replace(/[-_]/g, ' ').trim();
+  return str.toLowerCase().trim();
 }
 
 export default function HomePage() {
@@ -62,6 +57,7 @@ export default function HomePage() {
       // Map to ensure images fields are always strings
       const normalizedData = data.map((pokemon: any) => ({
         ...pokemon,
+        rawName: pokemon.name,
         name: formatPokemonName(pokemon.name),
         images: {
           official: pokemon.images.official ?? "",
@@ -95,7 +91,7 @@ export default function HomePage() {
   const normalizedSearch = normalizeString(searchTerm);
 
   const filteredList = pokemonList.filter(pokemon => {
-    const matchesName = normalizeString(pokemon.name).includes(normalizedSearch);
+    const matchesName = normalizeString(pokemon.rawName).includes(normalizedSearch);
     const matchesId = pokemon.id.toString().includes(normalizedSearch);
     const matchesAbility = pokemon.abilities.some(ability =>
       normalizeString(ability).includes(normalizedSearch)
@@ -108,7 +104,6 @@ export default function HomePage() {
 
     return (matchesName || matchesId || matchesAbility) && matchesType && matchesGeneration;
   });
-
 
 
   // Custom order for type buttons
@@ -223,7 +218,7 @@ export default function HomePage() {
             />
             <span className="font-medium text-center">
               #{pokemon.id.toString().padStart(4, "0")}<br />
-              {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
+              {pokemon.name}
             </span>
 
             <span className="text-s text-gray-500 text-center mt-1 italic">
