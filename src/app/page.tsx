@@ -229,7 +229,8 @@ export default function HomePage() {
 
           // Determine image URL dynamically
           // Determine image URL dynamically
-          let imageUrl = pokemon.images[imageStyle];
+          let imageUrl = pokemon.images[imageStyle] ?? "";
+
           if (isShiny) {
             if (imageStyle === 'official') {
               imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemon.id}.png`;
@@ -239,6 +240,7 @@ export default function HomePage() {
               imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.id}.png`;
             }
           }
+
 
 
           return (

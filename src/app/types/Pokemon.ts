@@ -1,13 +1,23 @@
-
 export type Pokemon = {
   id: number;
-  rawName: string;
   name: string;
+  rawName: string; // if you want to keep that
   images: {
-    official: string;
-    home: string;
-    sprite: string;
+    sprite: string | null;
+    home: string | null;
+    official: string | null;
   };
   types: string[];
   abilities: string[];
+  height: number; // decimeters
+  weight: number; // hectograms
+  stats: {
+    name: string;
+    base_stat: number;
+  }[];
+  moves: {
+    name: string;
+    level_learned_at: number;
+    move_learn_method: string;
+  }[];
 };

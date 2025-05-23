@@ -1,19 +1,7 @@
-// lib/pokeapi.ts
-
-export type Pokemon = {
-  id: number;
-  name: string;
-  images: {
-    sprite: string | null;
-    home: string | null;
-    official: string | null;
-  };
-  types: string[];
-  abilities: string[];
-};
+import { Pokemon } from "@/app/types/Pokemon";
 
 export async function fetchAllPokemon(): Promise<Pokemon[]> {
-  const limit = 1025;
+  const limit = 1025; // or more
   const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}`);
   const data = await res.json();
 
@@ -32,6 +20,17 @@ export async function fetchAllPokemon(): Promise<Pokemon[]> {
         },
         types: details.types.map((t: any) => t.type.name),
         abilities: details.abilities.map((a: any) => a.ability.name),
+        height: details.height,
+        weight: details.weight,
+        stats: details.stats.map((stat: any) => ({
+          name: stat.stat.name,
+          base_stat: stat.base_stat,
+        })),
+        moves: details.moves.map((move: any) => ({
+          name: move.move.name,
+          level_learned_at: move.version_group_details[0]?.level_learned_at ?? 0,
+          move_learn_method: move.version_group_details[0]?.move_learn_method.name ?? '',
+        })),
       };
     })
   );
