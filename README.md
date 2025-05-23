@@ -23,8 +23,8 @@ This is a simple Pokédex web application built using **Next.js** and **shadcn/u
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/pokedex-project.git
-   cd pokedex-project
+   git clone https://github.com/yourusername/pokedex.git
+   cd pokedex
    ```
 
 2. Install the dependencies:

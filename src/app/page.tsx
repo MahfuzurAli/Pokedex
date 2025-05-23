@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { fetchAllPokemon } from "@/lib/pokeapi";
 import { formatPokemonName } from "@/lib/localNameMap";
+import SearchBar from "@/components/SearchBar";
 
 const typeColors: Record<string, string> = {
   normal: "bg-gray-400",
@@ -49,7 +50,7 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedGeneration, setSelectedGeneration] = useState<string | null>(null);
-  const [imageStyle, setImageStyle] = useState<'official' | 'home' | 'sprite'>('official');
+  const [imageStyle, setImageStyle] = useState<'official' | 'home' | 'sprite'>('home');
   const [sortOption, setSortOption] = useState("number-asc");
   const [shinyActive, setShinyActive] = useState<Record<number, boolean>>({});
 
@@ -152,26 +153,13 @@ export default function HomePage() {
       <h1 className="text-3xl font-bold mb-4">Pokédex</h1>
 
       {/* Search Bar + Sort Dropdown */}
-      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:gap-4">
-        <input
-          type="text"
-          placeholder="Search by name, number or ability..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          className="p-2 border rounded w-full sm:w-1/2"
-        />
+      <SearchBar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        sortOption={sortOption}
+        setSortOption={setSortOption}
+      />
 
-        <select
-          value={sortOption}
-          onChange={e => setSortOption(e.target.value)}
-          className="mt-2 sm:mt-0 p-2 border rounded w-full sm:w-auto text-sm"
-        >
-          <option value="number-asc">Sort by Number (1-1025)</option>
-          <option value="number-desc">Sort by Number (1025-1)</option>
-          <option value="name-asc">Sort by Name (A-Z)</option>
-          <option value="name-desc">Sort by Name (Z-A)</option>
-        </select>
-      </div>
 
       {/* Type Filter Buttons */}
       <div className="flex flex-wrap gap-2 mb-4 items-center">
@@ -231,7 +219,7 @@ export default function HomePage() {
 
       {/* Image Style Buttons */}
       <div className="flex justify-end gap-2 mb-4">
-        {(['official', 'home', 'sprite'] as const).map(style => (
+        {(['home', 'official', 'sprite'] as const).map(style => (
           <button
             key={style}
             onClick={() => setImageStyle(style)}
@@ -249,21 +237,25 @@ export default function HomePage() {
           const isShiny = shinyActive[pokemon.id] === true;
 
           // Determine image URL dynamically
+          // Determine image URL dynamically
           let imageUrl = pokemon.images[imageStyle];
-          if (isShiny && (imageStyle === 'home' || imageStyle === 'sprite')) {
-            if (imageStyle === 'home') {
+          if (isShiny) {
+            if (imageStyle === 'official') {
+              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemon.id}.png`;
+            } else if (imageStyle === 'home') {
               imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${pokemon.id}.png`;
             } else if (imageStyle === 'sprite') {
               imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.id}.png`;
             }
           }
 
+
           return (
             <li
               key={pokemon.id}
               className="bg-white rounded-lg shadow p-3 flex flex-col items-center justify-between aspect-square text-sm relative"
             >
-              {(imageStyle === 'home' || imageStyle === 'sprite') && (
+              {(imageStyle === 'official' || imageStyle === 'home' || imageStyle === 'sprite') && (
                 <button
                   onClick={() => toggleShiny(pokemon.id)}
                   className="absolute top-2 left-2 w-6 h-6 text-yellow-400 hover:text-yellow-300"
