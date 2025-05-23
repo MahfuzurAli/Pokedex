@@ -51,6 +51,14 @@ export default function HomePage() {
   const [selectedGeneration, setSelectedGeneration] = useState<string | null>(null);
   const [imageStyle, setImageStyle] = useState<'official' | 'home' | 'sprite'>('official');
   const [sortOption, setSortOption] = useState("number-asc");
+  const [shinyActive, setShinyActive] = useState<Record<number, boolean>>({});
+
+  function toggleShiny(id: number) {
+    setShinyActive(prev => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  }
 
   useEffect(() => {
     async function loadData() {
@@ -165,7 +173,6 @@ export default function HomePage() {
         </select>
       </div>
 
-
       {/* Type Filter Buttons */}
       <div className="flex flex-wrap gap-2 mb-4 items-center">
         {allTypes.map(type => (
@@ -238,44 +245,81 @@ export default function HomePage() {
 
       {/* Pokémon List */}
       <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        {sortedList.map(pokemon => (
-          <li
-            key={pokemon.id}
-            className="bg-white rounded-lg shadow p-3 flex flex-col items-center justify-between aspect-square text-sm"
-          >
-            <img
-              src={pokemon.images[imageStyle]}
-              alt={pokemon.name}
-              className="w-35 h-35 object-contain mb-2"
-            />
-            <span className="font-medium text-center">
-              #{pokemon.id.toString().padStart(4, "0")}<br />
-              {pokemon.name}
-            </span>
+        {sortedList.map(pokemon => {
+          const isShiny = shinyActive[pokemon.id] === true;
 
-            <span className="text-s text-gray-500 text-center mt-1 italic">
-              {pokemon.abilities
-                .map(ability =>
-                  ability
-                    .split("-")
-                    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-                    .join(" ")
-                )
-                .join(" / ")}
-            </span>
+          // Determine image URL dynamically
+          let imageUrl = pokemon.images[imageStyle];
+          if (isShiny && (imageStyle === 'home' || imageStyle === 'sprite')) {
+            if (imageStyle === 'home') {
+              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${pokemon.id}.png`;
+            } else if (imageStyle === 'sprite') {
+              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.id}.png`;
+            }
+          }
 
-            <div className="flex gap-1 mt-2 flex-wrap justify-center">
-              {pokemon.types.map(type => (
-                <span
-                  key={type}
-                  className={`text-white text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${typeColors[type] || typeColors["unknown"]}`}
+          return (
+            <li
+              key={pokemon.id}
+              className="bg-white rounded-lg shadow p-3 flex flex-col items-center justify-between aspect-square text-sm relative"
+            >
+              {(imageStyle === 'home' || imageStyle === 'sprite') && (
+                <button
+                  onClick={() => toggleShiny(pokemon.id)}
+                  className="absolute top-2 left-2 w-6 h-6 text-yellow-400 hover:text-yellow-300"
+                  title="Toggle Shiny"
+                  aria-label={`Toggle shiny for ${pokemon.name}`}
+                  type="button"
                 >
-                  {type}
-                </span>
-              ))}
-            </div>
-          </li>
-        ))}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`w-4 h-4 ${isShiny ? 'text-yellow-400' : 'text-gray-400'}`}
+                  >
+                    <polygon points="12 2 15 9 22 9 16.5 13.5 18.5 21 12 16.5 5.5 21 7.5 13.5 2 9 9 9 12 2" />
+                  </svg>
+                </button>
+              )}
+
+              <img
+                src={imageUrl}
+                alt={pokemon.name}
+                className="w-35 h-35 object-contain mb-2"
+              />
+              <span className="font-medium text-center">
+                #{pokemon.id.toString().padStart(4, "0")}<br />
+                {pokemon.name}
+              </span>
+
+              <span className="text-s text-gray-500 text-center mt-1 italic">
+                {pokemon.abilities
+                  .map(ability =>
+                    ability
+                      .split("-")
+                      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                      .join(" ")
+                  )
+                  .join(" / ")}
+              </span>
+
+              <div className="flex gap-1 mt-2 flex-wrap justify-center">
+                {pokemon.types.map(type => (
+                  <span
+                    key={type}
+                    className={`text-white text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${typeColors[type] || typeColors["unknown"]}`}
+                  >
+                    {type}
+                  </span>
+                ))}
+              </div>
+            </li>
+          );
+        })}
       </ul>
 
       {filteredList.length === 0 && (
