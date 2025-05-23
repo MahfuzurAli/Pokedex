@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { fetchAllPokemon } from "@/lib/pokeapi";
 import { formatPokemonName } from "@/lib/localNameMap";
 import SearchBar from "@/components/SearchBar";
+import PokemonInfoPanel from "@/components/PokemonInfoPanel";
+import { Pokemon } from "./types/Pokemon";
 
 const typeColors: Record<string, string> = {
   normal: "bg-gray-400",
@@ -28,19 +30,6 @@ const typeColors: Record<string, string> = {
   unknown: "bg-gray-600",
 };
 
-type Pokemon = {
-  id: number;
-  rawName: string;
-  name: string;
-  images: {
-    official: string;
-    home: string;
-    sprite: string;
-  };
-  types: string[];
-  abilities: string[];
-};
-
 function normalizeString(str: string) {
   return str.toLowerCase().trim();
 }
@@ -53,6 +42,8 @@ export default function HomePage() {
   const [imageStyle, setImageStyle] = useState<'official' | 'home' | 'sprite'>('home');
   const [sortOption, setSortOption] = useState("number-asc");
   const [shinyActive, setShinyActive] = useState<Record<number, boolean>>({});
+  const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
+
 
   function toggleShiny(id: number) {
     setShinyActive(prev => ({
@@ -283,10 +274,20 @@ export default function HomePage() {
                 alt={pokemon.name}
                 className="w-35 h-35 object-contain mb-2"
               />
-              <span className="font-medium text-center">
+              <button
+                onClick={() =>
+                  setSelectedPokemon((prev) =>
+                    prev?.id === pokemon.id ? null : pokemon
+                  )
+                }
+                className="font-medium text-center hover:underline"
+                type="button"
+                aria-label={`Show more info about ${pokemon.name}`}
+              >
                 #{pokemon.id.toString().padStart(4, "0")}<br />
                 {pokemon.name}
-              </span>
+              </button>
+
 
               <span className="text-s text-gray-500 text-center mt-1 italic">
                 {pokemon.abilities
@@ -317,6 +318,12 @@ export default function HomePage() {
       {filteredList.length === 0 && (
         <p className="text-center mt-8 text-gray-600">No Pokémon found.</p>
       )}
+
+      <PokemonInfoPanel
+        selectedPokemon={selectedPokemon}
+        setSelectedPokemon={setSelectedPokemon}
+      />
+
     </main>
   );
 }
