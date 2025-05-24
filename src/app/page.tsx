@@ -95,7 +95,7 @@ export default function HomePage() {
     const matchesName = normalizeString(pokemon.rawName).includes(normalizedSearch);
     const matchesId = pokemon.id.toString().includes(normalizedSearch);
     const matchesAbility = pokemon.abilities.some(ability =>
-      normalizeString(ability).includes(normalizedSearch)
+      normalizeString(ability.name).includes(normalizedSearch)
     );
 
     const matchesType = selectedType ? pokemon.types.includes(selectedType) : true;
@@ -294,7 +294,7 @@ export default function HomePage() {
               <span className="text-s text-gray-500 text-center mt-1 italic">
                 {pokemon.abilities
                   .map(ability =>
-                    ability
+                    ability.name
                       .split("-")
                       .map(part => part.charAt(0).toUpperCase() + part.slice(1))
                       .join(" ")
