@@ -31,6 +31,7 @@ interface Props {
 }
 
 export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }: Props) {
+    const [selectedArtwork, setSelectedArtwork] = useState<"official" | "home" | "sprite">("home");
     const [evolutionChain, setEvolutionChain] = useState<Evolution[]>([]);
     const [abilitiesWithDesc, setAbilitiesWithDesc] = useState<
         { name: string; description: string }[]
@@ -147,11 +148,28 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
                         ))}
                     </div>
 
-                    <img
-                        src={selectedPokemon.images.home ?? ""}
-                        alt={selectedPokemon.name}
-                        className="w-80 h-80 mb-4 object-contain mx-auto rounded-lg shadow-lg bg-gray-50"
-                    />
+                    <div className="flex flex-col items-center mb-6 gap-4">
+                        <img
+                            src={selectedPokemon.images[selectedArtwork] ?? ""}
+                            alt={selectedPokemon.name}
+                            className="w-80 h-80 object-contain rounded-lg shadow-lg bg-gray-50"
+                        />
+
+                        <div className="flex justify-between w-full max-w-xs">
+                            {(["official", "home", "sprite"] as const).map((artwork) => (
+                                <button
+                                    key={artwork}
+                                    onClick={() => setSelectedArtwork(artwork)}
+                                    className={`px-2 py-0.5 rounded border transition-colors ${selectedArtwork === artwork
+                                            ? "bg-indigo-600 text-white border-indigo-600"
+                                            : "bg-indigo-100 text-indigo-900 border-indigo-300 hover:bg-indigo-200"
+                                        }`}
+                                >
+                                    {artwork.charAt(0).toUpperCase() + artwork.slice(1)}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
                     {/* Evolution Line */}
                     {evolutionChain.length > 0 && (
@@ -202,7 +220,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
                                 const widthPercent = (stat.base_stat / maxStatValue) * 100;
 
                                 return (
-                                    <li key={stat.name} className="flex items-center space-x-4">
+                                    <li key={stat.name} className="flex items-center space-x-1">
                                         <span className="w-28 capitalize font-medium text-indigo-800">
                                             {stat.name.replace("-", " ")}
                                         </span>
@@ -223,20 +241,26 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
 
                     {/* Moves */}
                     <section>
-                        <h3 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-3 text-black">
+                        <h3 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-4 text-black">
                             Moves (Level-up)
                         </h3>
-                        <ul className="max-h-44 overflow-y-auto list-disc list-inside space-y-1 text-gray-800">
+                        <ul className="max-h-48 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-900">
                             {selectedPokemon.moves
                                 .filter((move) => move.move_learn_method === "level-up")
                                 .sort((a, b) => a.level_learned_at - b.level_learned_at)
                                 .map((move) => (
-                                    <li key={move.name} className="hover:text-indigo-700 cursor-default">
-                                        Lv {move.level_learned_at}: {move.name.replace("-", " ")}
+                                    <li
+                                        key={move.name}
+                                        className="flex justify-between items-center bg-indigo-50 hover:bg-indigo-100 rounded-md px-4 py-2 cursor-default transition-colors"
+                                    >
+                                        <span className="font-medium text-indigo-900">
+                                            Lv {move.level_learned_at}: {move.name.replace("-", " ")}
+                                        </span>
                                     </li>
                                 ))}
                         </ul>
                     </section>
+
                 </>
             )}
         </div>
