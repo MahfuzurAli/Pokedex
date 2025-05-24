@@ -113,7 +113,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
     return (
         <div
             className={`
-        fixed top-0 right-0 h-full w-150 bg-white shadow-2xl p-6
+        fixed top-0 right-0 h-full w-130 bg-white shadow-2xl p-6
         z-50 flex flex-col overflow-y-auto
         transform transition-transform duration-300 ease-in-out
         ${selectedPokemon ? "translate-x-0" : "translate-x-full"}
@@ -196,16 +196,28 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
                         <h3 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-3 text-black">
                             Base Stats
                         </h3>
-                        <ul className="space-y-1">
-                            {selectedPokemon.stats.map((stat) => (
-                                <li
-                                    key={stat.name}
-                                    className="flex justify-between bg-indigo-50 rounded-md px-3 py-1 text-indigo-800 capitalize font-medium"
-                                >
-                                    <span>{stat.name.replace("-", " ")}</span>
-                                    <span>{stat.base_stat}</span>
-                                </li>
-                            ))}
+                        <ul className="space-y-2 max-w-md">
+                            {selectedPokemon.stats.map((stat) => {
+                                const maxStatValue = 255; // approx max base stat in Pokemon games
+                                const widthPercent = (stat.base_stat / maxStatValue) * 100;
+
+                                return (
+                                    <li key={stat.name} className="flex items-center space-x-4">
+                                        <span className="w-28 capitalize font-medium text-indigo-800">
+                                            {stat.name.replace("-", " ")}
+                                        </span>
+                                        <div className="flex-1 bg-indigo-100 rounded-full h-5 overflow-hidden">
+                                            <div
+                                                className="bg-indigo-600 h-5 rounded-full transition-all duration-300"
+                                                style={{ width: `${widthPercent}%` }}
+                                            />
+                                        </div>
+                                        <span className="w-10 text-right font-semibold text-indigo-900">
+                                            {stat.base_stat}
+                                        </span>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </section>
 
