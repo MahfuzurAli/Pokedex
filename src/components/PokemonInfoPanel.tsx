@@ -2,6 +2,29 @@ import React, { useEffect, useState } from "react";
 import { Pokemon } from "@/app/types/Pokemon";
 import { Evolution } from "@/app/types/Evolution";
 
+const typeColors: Record<string, string> = {
+    normal: "bg-gray-400",
+    fire: "bg-red-500",
+    water: "bg-blue-500",
+    electric: "bg-yellow-400",
+    grass: "bg-green-500",
+    ice: "bg-cyan-300",
+    fighting: "bg-orange-600",
+    poison: "bg-purple-500",
+    ground: "bg-yellow-700",
+    flying: "bg-indigo-300",
+    psychic: "bg-pink-400",
+    bug: "bg-lime-500",
+    rock: "bg-yellow-600",
+    ghost: "bg-violet-600",
+    dragon: "bg-indigo-700",
+    dark: "bg-gray-700",
+    steel: "bg-slate-400",
+    fairy: "bg-pink-300",
+    stellar: "bg-gradient-to-r from-purple-400 to-blue-400",
+    unknown: "bg-gray-600",
+};
+
 interface Props {
     selectedPokemon: Pokemon | null;
     setSelectedPokemon: React.Dispatch<React.SetStateAction<Pokemon | null>>;
@@ -107,9 +130,22 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
 
             {selectedPokemon && (
                 <>
-                    <h2 className="text-3xl font-bold mb-4 text-center capitalize text-black">
+                    <h2 className="text-3xl font-bold mb-2 text-center capitalize text-black">
                         {selectedPokemon.name}
                     </h2>
+
+                    {/* Types badges under name */}
+                    <div className="flex justify-center gap-2 mb-6">
+                        {selectedPokemon.types.map((type) => (
+                            <span
+                                key={type}
+                                className={`capitalize text-white px-3 py-1 rounded-full font-semibold text-sm ${typeColors[type] ?? "bg-gray-500"
+                                    }`}
+                            >
+                                {type}
+                            </span>
+                        ))}
+                    </div>
 
                     <img
                         src={selectedPokemon.images.home ?? ""}
@@ -135,11 +171,6 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
                         </section>
                     )}
 
-                    <section className="mb-6">
-                        <h3 className="text-xl font-semibold mb-2 text-black">Types</h3>
-                        <p className="text-gray-700 text-lg">{selectedPokemon.types.join(", ")}</p>
-                    </section>
-
                     {/* Abilities */}
                     <section className="mb-6">
                         <h3 className="text-xl font-semibold mb-2 text-black">Abilities</h3>
@@ -160,6 +191,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
                         </ul>
                     </section>
 
+                    {/* Base Stats */}
                     <section className="mb-6">
                         <h3 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-3 text-black">
                             Base Stats
@@ -177,6 +209,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
                         </ul>
                     </section>
 
+                    {/* Moves */}
                     <section>
                         <h3 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-3 text-black">
                             Moves (Level-up)
