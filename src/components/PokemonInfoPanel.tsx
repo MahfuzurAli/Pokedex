@@ -9,6 +9,9 @@ interface Props {
 
 export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }: Props) {
     const [evolutionChain, setEvolutionChain] = useState<Evolution[]>([]);
+    const [abilitiesWithDesc, setAbilitiesWithDesc] = useState<
+        { name: string; description: string }[]
+    >([]);
 
     useEffect(() => {
         async function fetchEvolutionChain(pokemonId: number) {
@@ -40,10 +43,42 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
             }
         }
 
+        async function fetchAbilitiesDescriptions() {
+            if (!selectedPokemon) {
+                setAbilitiesWithDesc([]);
+                return;
+            }
+
+            const abilitiesDetailed = await Promise.all(
+                selectedPokemon.abilities.map(async (ability) => {
+                    try {
+                        const res = await fetch(`https://pokeapi.co/api/v2/ability/${ability.name}`);
+                        const data = await res.json();
+                        const englishEntry = data.effect_entries.find(
+                            (entry: any) => entry.language.name === "en"
+                        );
+                        return {
+                            name: ability.name,
+                            description: englishEntry?.short_effect ?? "No description available.",
+                        };
+                    } catch {
+                        return {
+                            name: ability.name,
+                            description: "Failed to load description.",
+                        };
+                    }
+                })
+            );
+
+            setAbilitiesWithDesc(abilitiesDetailed);
+        }
+
         if (selectedPokemon) {
             fetchEvolutionChain(selectedPokemon.id);
+            fetchAbilitiesDescriptions();
         } else {
             setEvolutionChain([]);
+            setAbilitiesWithDesc([]);
         }
     }, [selectedPokemon]);
 
@@ -109,15 +144,19 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
                     <section className="mb-6">
                         <h3 className="text-xl font-semibold mb-2 text-black">Abilities</h3>
                         <ul className="flex flex-col gap-2">
-                            {selectedPokemon.abilities.map((ability) => (
-                                <li
-                                    key={ability.name}
-                                    className="capitalize bg-indigo-200 text-indigo-800 rounded-md px-3 py-2 font-medium"
-                                >
-                                    <strong>{ability.name.replace("-", " ")}</strong>
-                                    <p className="text-indigo-700 text-sm mt-1">{ability.description}</p>
-                                </li>
-                            ))}
+                            {abilitiesWithDesc.length > 0 ? (
+                                abilitiesWithDesc.map((ability) => (
+                                    <li
+                                        key={ability.name}
+                                        className="capitalize bg-indigo-200 text-indigo-800 rounded-md px-3 py-2 font-medium"
+                                    >
+                                        <strong>{ability.name.replace("-", " ")}</strong>
+                                        <p className="text-indigo-700 text-sm mt-1">{ability.description}</p>
+                                    </li>
+                                ))
+                            ) : (
+                                <p>Loading abilities...</p>
+                            )}
                         </ul>
                     </section>
 
