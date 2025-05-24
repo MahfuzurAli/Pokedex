@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Pokemon } from "@/app/types/Pokemon";
+import { Evolution } from "@/app/types/Evolution";
 
 interface Props {
     selectedPokemon: Pokemon | null;
     setSelectedPokemon: React.Dispatch<React.SetStateAction<Pokemon | null>>;
 }
-
-type Evolution = {
-    id: number;
-    name: string;
-    sprite: string;
-};
 
 export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }: Props) {
     const [evolutionChain, setEvolutionChain] = useState<Evolution[]>([]);
