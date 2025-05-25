@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, ReactElement, JSX } from "react";
 import { Pokemon } from "@/app/types/Pokemon";
 import { Evolution } from "@/app/types/Evolution";
+import { EvolutionNode } from "@/app/types/EvolutionNode";
 
 const typeColors: Record<string, string> = {
     normal: "bg-gray-400",
@@ -32,10 +33,8 @@ interface Props {
 
 export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }: Props) {
     const [selectedArtwork, setSelectedArtwork] = useState<"official" | "home" | "sprite">("home");
-    const [evolutionChain, setEvolutionChain] = useState<Evolution[]>([]);
-    const [abilitiesWithDesc, setAbilitiesWithDesc] = useState<
-        { name: string; description: string }[]
-    >([]);
+    const [evolutionChainTree, setEvolutionChainTree] = useState<EvolutionNode | null>(null);
+    const [abilitiesWithDesc, setAbilitiesWithDesc] = useState<{ name: string; description: string }[]>([]);
 
     useEffect(() => {
         async function fetchEvolutionChain(pokemonId: number) {
@@ -46,26 +45,14 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
                 const evoChainRes = await fetch(speciesData.evolution_chain.url);
                 const evoChainData = await evoChainRes.json();
 
-                const chain: Evolution[] = [];
-                function parseChain(node: any) {
-                    if (!node) return;
-                    const evoName: string = node.species.name;
-                    const evoId = getIdFromUrl(node.species.url);
-                    const sprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evoId}.png`;
-                    chain.push({ id: evoId, name: evoName, sprite });
-
-                    if (node.evolves_to.length > 0) {
-                        node.evolves_to.forEach(parseChain);
-                    }
-                }
-                parseChain(evoChainData.chain);
-
-                setEvolutionChain(chain);
+                const rootNode: EvolutionNode = parseChain(evoChainData.chain);
+                setEvolutionChainTree(rootNode);
             } catch (error) {
                 console.error("Failed to fetch evolution chain", error);
-                setEvolutionChain([]);
+                setEvolutionChainTree(null);
             }
         }
+
 
         async function fetchAbilitiesDescriptions() {
             if (!selectedPokemon) {
@@ -101,7 +88,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
             fetchEvolutionChain(selectedPokemon.id);
             fetchAbilitiesDescriptions();
         } else {
-            setEvolutionChain([]);
+            setEvolutionChainTree
             setAbilitiesWithDesc([]);
         }
     }, [selectedPokemon]);
@@ -109,6 +96,49 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
     function getIdFromUrl(url: string): number {
         const parts = url.split("/").filter(Boolean);
         return Number(parts[parts.length - 1]);
+    }
+
+    function parseChain(node: any): EvolutionNode {
+        const id = getIdFromUrl(node.species.url);
+        const name = node.species.name;
+        const sprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+
+        return {
+            id,
+            name,
+            sprite,
+            evolves_to: node.evolves_to.map((evo: any) => parseChain(evo)),
+        };
+    }
+
+    function renderEvolutionTree(node: EvolutionNode | null): React.ReactNode {
+        if (!node) return null;
+
+        return (
+            <div className="flex items-center gap-6">
+                <div className="flex flex-col items-center min-w-[80px]">
+                    <img
+                        src={node.sprite}
+                        alt={node.name}
+                        className="w-16 h-16 object-contain"
+                    />
+                    <span className="capitalize mt-1 text-sm text-gray-700">{node.name}</span>
+                </div>
+
+                {node.evolves_to.length > 0 && (
+                    <>
+                        <span className="text-2xl text-gray-500 select-none">→</span>
+                        <div className="flex items-center gap-6">
+                            {node.evolves_to.map((evo) => (
+                                <div key={evo.id}>
+                                    {renderEvolutionTree(evo)}
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+        );
     }
 
     return (
@@ -161,8 +191,8 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
                                     key={artwork}
                                     onClick={() => setSelectedArtwork(artwork)}
                                     className={`px-2 py-0.5 rounded border transition-colors ${selectedArtwork === artwork
-                                            ? "bg-indigo-600 text-white border-indigo-600"
-                                            : "bg-indigo-100 text-indigo-900 border-indigo-300 hover:bg-indigo-200"
+                                        ? "bg-indigo-600 text-white border-indigo-600"
+                                        : "bg-indigo-100 text-indigo-900 border-indigo-300 hover:bg-indigo-200"
                                         }`}
                                 >
                                     {artwork.charAt(0).toUpperCase() + artwork.slice(1)}
@@ -172,22 +202,14 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
                     </div>
 
                     {/* Evolution Line */}
-                    {evolutionChain.length > 0 && (
+                    {evolutionChainTree && (
                         <section className="mb-6 flex flex-col items-center">
-                            <div className="flex space-x-6 justify-center items-center">
-                                {evolutionChain.map((evo) => (
-                                    <div key={evo.id} className="flex flex-col items-center">
-                                        <img
-                                            src={evo.sprite}
-                                            alt={evo.name}
-                                            className="w-16 h-16 object-contain"
-                                        />
-                                        <span className="capitalize mt-1 text-sm text-gray-700">{evo.name}</span>
-                                    </div>
-                                ))}
-                            </div>
+                            <h3 className="text-xl font-semibold mb-3 text-black">Evolution Line</h3>
+                            {renderEvolutionTree(evolutionChainTree)}
                         </section>
                     )}
+
+
 
                     {/* Abilities */}
                     <section className="mb-6">
