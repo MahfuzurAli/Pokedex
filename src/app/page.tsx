@@ -6,6 +6,7 @@ import { formatPokemonName } from "@/lib/localNameMap";
 import SearchBar from "@/components/SearchBar";
 import PokemonInfoPanel from "@/components/PokemonInfoPanel";
 import { Pokemon } from "./types/Pokemon";
+import { regionalForms } from "./types/RegionalForms";
 
 const typeColors: Record<string, string> = {
   normal: "bg-gray-400",
@@ -43,12 +44,20 @@ export default function HomePage() {
   const [sortOption, setSortOption] = useState("number-asc");
   const [shinyActive, setShinyActive] = useState<Record<number, boolean>>({});
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
+  const [regionalFormActive, setRegionalFormActive] = useState<{ [pokemonId: number]: boolean }>({});
 
 
   function toggleShiny(id: number) {
     setShinyActive(prev => ({
       ...prev,
       [id]: !prev[id],
+    }));
+  }
+
+  function toggleRegionalForm(pokemonId: number) {
+    setRegionalFormActive(prev => ({
+      ...prev,
+      [pokemonId]: !prev[pokemonId],
     }));
   }
 
@@ -227,33 +236,56 @@ export default function HomePage() {
         {sortedList.map(pokemon => {
           const isShiny = shinyActive[pokemon.id] === true;
 
-          // Determine image URL dynamically
-          // Determine image URL dynamically
-          let imageUrl = pokemon.images[imageStyle] ?? "";
+          // Check if this Pokémon has a regional form
+          const hasRegionalForm = regionalForms.hasOwnProperty(pokemon.rawName);
+          const isRegionalActive = regionalFormActive[pokemon.id] === true;
+
+          const basePokemon = pokemon;
+          const regionalFormData = regionalForms[pokemon.rawName as keyof typeof regionalForms];
+
+          // Determine which form data to use
+          // Determine which form data to use
+          const displayPokemonId = isRegionalActive && regionalFormData ? regionalFormData.pokedexId : basePokemon.id;
+          const displayName = isRegionalActive && regionalFormData ? `${basePokemon.name} (${regionalFormData.formName})` : basePokemon.name;
+          const displayTypes = isRegionalActive && regionalFormData ? regionalFormData.types : basePokemon.types;
+          // Abilities always come from basePokemon
+          const displayAbilities = basePokemon.abilities.map(a => a.name);
+
+
+          // Determine image URL dynamically based on selected form and shiny status
+          let imageUrl = "";
 
           if (isShiny) {
             if (imageStyle === 'official') {
-              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemon.id}.png`;
+              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${displayPokemonId}.png`;
             } else if (imageStyle === 'home') {
-              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${pokemon.id}.png`;
+              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${displayPokemonId}.png`;
             } else if (imageStyle === 'sprite') {
-              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.id}.png`;
+              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${displayPokemonId}.png`;
+            }
+          } else {
+            if (isRegionalActive && regionalFormData) {
+              if (imageStyle === 'official') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${displayPokemonId}.png`;
+              } else if (imageStyle === 'home') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${displayPokemonId}.png`;
+              } else if (imageStyle === 'sprite') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPokemonId}.png`;
+              }
+            } else {
+              imageUrl = basePokemon.images[imageStyle] ?? "";
             }
           }
 
-
-
           return (
-            <li
-              key={pokemon.id}
-              className="bg-white rounded-lg shadow p-3 flex flex-col items-center justify-between aspect-square text-sm relative"
-            >
+            <li key={pokemon.id} className="bg-white rounded-lg shadow p-3 flex flex-col items-center justify-between aspect-square text-sm relative">
+              {/* Shiny toggle button */}
               {(imageStyle === 'official' || imageStyle === 'home' || imageStyle === 'sprite') && (
                 <button
                   onClick={() => toggleShiny(pokemon.id)}
                   className="absolute top-2 left-2 w-6 h-6 text-yellow-400 hover:text-yellow-300"
                   title="Toggle Shiny"
-                  aria-label={`Toggle shiny for ${pokemon.name}`}
+                  aria-label={`Toggle shiny for ${basePokemon.name}`}
                   type="button"
                 >
                   <svg
@@ -271,30 +303,35 @@ export default function HomePage() {
                 </button>
               )}
 
-              <img
-                src={imageUrl}
-                alt={pokemon.name}
-                className="w-35 h-35 object-contain mb-2"
-              />
+              {/* Regional form toggle button */}
+              {hasRegionalForm && (
+                <button
+                  className="absolute top-2 right-2 w-6 h-6 text-blue-500 hover:text-blue-400"
+                  title="Toggle Regional Form"
+                  aria-label={`Toggle regional form for ${basePokemon.name}`}
+                  type="button"
+                  onClick={() => toggleRegionalForm(pokemon.id)}
+                >
+                  ▶
+                </button>
+              )}
+
+              <img src={imageUrl} alt={displayName} className="w-35 h-35 object-contain mb-2" />
+
               <button
-                onClick={() =>
-                  setSelectedPokemon((prev) =>
-                    prev?.id === pokemon.id ? null : pokemon
-                  )
-                }
+                onClick={() => setSelectedPokemon((prev) => (prev?.id === pokemon.id ? null : pokemon))}
                 className="font-medium text-center hover:underline"
                 type="button"
-                aria-label={`Show more info about ${pokemon.name}`}
+                aria-label={`Show more info about ${displayName}`}
               >
-                #{pokemon.id.toString().padStart(4, "0")}<br />
-                {pokemon.name}
+                #{displayPokemonId.toString().padStart(4, "0")}<br />
+                {displayName}
               </button>
 
-
               <span className="text-s text-gray-500 text-center mt-1 italic">
-                {pokemon.abilities
+                {displayAbilities
                   .map(ability =>
-                    ability.name
+                    ability
                       .split("-")
                       .map(part => part.charAt(0).toUpperCase() + part.slice(1))
                       .join(" ")
@@ -303,7 +340,7 @@ export default function HomePage() {
               </span>
 
               <div className="flex gap-1 mt-2 flex-wrap justify-center">
-                {pokemon.types.map(type => (
+                {displayTypes.map(type => (
                   <span
                     key={type}
                     className={`text-white text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${typeColors[type] || typeColors["unknown"]}`}
@@ -315,6 +352,7 @@ export default function HomePage() {
             </li>
           );
         })}
+
       </ul>
 
       {filteredList.length === 0 && (
