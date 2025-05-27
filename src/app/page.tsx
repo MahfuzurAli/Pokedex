@@ -324,7 +324,7 @@ export default function HomePage() {
                 type="button"
                 aria-label={`Show more info about ${displayName}`}
               >
-                #{displayPokemonId.toString().padStart(4, "0")}<br />
+                #{(isRegionalActive && regionalFormData ? regionalFormData.basePokedexId : displayPokemonId).toString().padStart(4, "0")}<br />
                 {displayName}
               </button>
 
