@@ -45,6 +45,7 @@ export default function HomePage() {
   const [shinyActive, setShinyActive] = useState<Record<number, boolean>>({});
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
   const [regionalFormActive, setRegionalFormActive] = useState<{ [pokemonId: number]: boolean }>({});
+  const [regionalAbilities, setRegionalAbilities] = useState<Record<number, string[]>>({});
 
 
   function toggleShiny(id: number) {
@@ -60,6 +61,33 @@ export default function HomePage() {
       [pokemonId]: !prev[pokemonId],
     }));
   }
+
+  async function fetchRegionalAbilities(pokedexId: number) {
+    if (regionalAbilities[pokedexId]) return; // Already cached
+    try {
+      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokedexId}`);
+      const data = await res.json();
+      const abilities = data.abilities.map((a: any) => a.ability.name);
+      setRegionalAbilities(prev => ({ ...prev, [pokedexId]: abilities }));
+    } catch {
+      setRegionalAbilities(prev => ({ ...prev, [pokedexId]: ["unknown"] }));
+    }
+  }
+
+  useEffect(() => {
+    // For each active regional form, fetch abilities if not already cached
+    Object.entries(regionalFormActive).forEach(([pokemonId, isActive]) => {
+      if (isActive) {
+        const basePokemon = pokemonList.find(p => p.id === Number(pokemonId));
+        if (!basePokemon) return;
+        const regionalFormData = regionalForms[basePokemon.rawName as keyof typeof regionalForms];
+        if (regionalFormData && !regionalAbilities[regionalFormData.pokedexId]) {
+          fetchRegionalAbilities(regionalFormData.pokedexId);
+        }
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [regionalFormActive, pokemonList]);
 
   useEffect(() => {
     async function loadData() {
@@ -106,7 +134,6 @@ export default function HomePage() {
     const matchesAbility = pokemon.abilities.some(ability =>
       normalizeString(ability.name).includes(normalizedSearch)
     );
-
     const matchesType = selectedType ? pokemon.types.includes(selectedType) : true;
     const matchesGeneration = selectedGeneration
       ? pokemon.id >= genRanges[selectedGeneration][0] && pokemon.id <= genRanges[selectedGeneration][1]
@@ -249,7 +276,10 @@ export default function HomePage() {
           const displayName = isRegionalActive && regionalFormData ? `${basePokemon.name} (${regionalFormData.formName})` : basePokemon.name;
           const displayTypes = isRegionalActive && regionalFormData ? regionalFormData.types : basePokemon.types;
           // Abilities always come from basePokemon
-          const displayAbilities = basePokemon.abilities.map(a => a.name);
+          const displayAbilities =
+            isRegionalActive && regionalFormData && regionalAbilities[regionalFormData.pokedexId]
+              ? regionalAbilities[regionalFormData.pokedexId]
+              : basePokemon.abilities.map(a => a.name);
 
 
           // Determine image URL dynamically based on selected form and shiny status
