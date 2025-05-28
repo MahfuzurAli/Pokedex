@@ -2,6 +2,7 @@ import React, { useEffect, useState, ReactElement, JSX } from "react";
 import { Pokemon } from "@/app/types/Pokemon";
 import { Evolution } from "@/app/types/Evolution";
 import { EvolutionNode } from "@/app/types/EvolutionNode";
+import PokemonTabs from "./PokemonTabs";
 
 const typeColors: Record<string, string> = {
     normal: "bg-gray-400",
@@ -28,10 +29,12 @@ const typeColors: Record<string, string> = {
 
 interface Props {
     selectedPokemon: Pokemon | null;
-    setSelectedPokemon: React.Dispatch<React.SetStateAction<Pokemon | null>>;
+    setSelectedPokemon: (pokemon: Pokemon | null) => void;
+    showMinimize?: boolean;
+    onMinimize?: () => void;
 }
 
-export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }: Props) {
+export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, showMinimize, onMinimize }: Props) {
     const [selectedArtwork, setSelectedArtwork] = useState<"official" | "home" | "sprite">("home");
     const [evolutionChainTree, setEvolutionChainTree] = useState<EvolutionNode | null>(null);
     const [abilitiesWithDesc, setAbilitiesWithDesc] = useState<{ name: string; description: string }[]>([]);
@@ -150,14 +153,26 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
         ${selectedPokemon ? "translate-x-0" : "translate-x-full"}
       `}
         >
-            <button
-                onClick={() => setSelectedPokemon(null)}
-                className="self-end mb-6 text-gray-500 hover:text-gray-900 text-3xl font-bold transition-colors"
-                aria-label="Close detail panel"
-                type="button"
-            >
-                &times;
-            </button>
+            <div className="flex items-center justify-end mb-6 gap-2">
+                {showMinimize && onMinimize && (
+                    <button
+                        onClick={onMinimize}
+                        className="text-gray-400 hover:text-indigo-600 text-3xl font-bold transition-colors"
+                        aria-label="Minimize info panel"
+                        type="button"
+                    >
+                        <span style={{ fontSize: "1.5em", lineHeight: 1 }}>_</span>
+                    </button>
+                )}
+                <button
+                    onClick={() => setSelectedPokemon(null)}
+                    className="text-gray-500 hover:text-gray-900 text-3xl font-bold transition-colors"
+                    aria-label="Close detail panel"
+                    type="button"
+                >
+                    &times;
+                </button>
+            </div>
 
             {selectedPokemon && (
                 <>

@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import React, { useRef } from "react";
 import { fetchAllPokemon } from "@/lib/pokeapi";
 import { formatPokemonName } from "@/lib/localNameMap";
 import SearchBar from "@/components/SearchBar";
 import PokemonInfoPanel from "@/components/PokemonInfoPanel";
 import { Pokemon } from "./types/Pokemon";
 import { regionalForms } from "./types/RegionalForms";
+import PokemonTabs, { PokemonTabsHandle } from "@/components/PokemonTabs";
 
 const typeColors: Record<string, string> = {
   normal: "bg-gray-400",
@@ -46,6 +48,7 @@ export default function HomePage() {
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
   const [regionalFormActive, setRegionalFormActive] = useState<{ [pokemonId: number]: boolean }>({});
   const [regionalAbilities, setRegionalAbilities] = useState<Record<number, string[]>>({});
+  const tabsRef = useRef<PokemonTabsHandle>(null);
 
 
   function toggleShiny(id: number) {
@@ -359,12 +362,10 @@ export default function HomePage() {
 
               <button
                 onClick={async () => {
+                  let pokemonToOpen = pokemon;
+
+                  // If regional form is active, fetch its data
                   if (isRegionalActive && regionalFormData) {
-                    // If already open for this regional form, close it
-                    if (selectedPokemon?.id === regionalFormData.pokedexId) {
-                      setSelectedPokemon(null);
-                      return;
-                    }
                     try {
                       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${regionalFormData.pokedexId}`);
                       if (!res.ok) {
@@ -372,8 +373,7 @@ export default function HomePage() {
                         return;
                       }
                       const data = await res.json();
-
-                      setSelectedPokemon({
+                      pokemonToOpen = {
                         id: data.id,
                         rawName: data.name,
                         name: `${basePokemon.name} (${regionalFormData.formName})`,
@@ -402,14 +402,15 @@ export default function HomePage() {
                         ),
                         height: data.height,
                         weight: data.weight,
-                      });
+                      };
                     } catch (e) {
                       alert("Failed to load regional form data.");
+                      return;
                     }
-                  } else {
-                    // For base form, keep your original logic
-                    setSelectedPokemon((prev) => (prev?.id === pokemon.id ? null : pokemon));
                   }
+
+                  // Open the tab using the ref
+                  tabsRef.current?.openTab(pokemonToOpen);
                 }}
                 className="font-medium text-center hover:underline"
                 type="button"
@@ -450,10 +451,7 @@ export default function HomePage() {
         <p className="text-center mt-8 text-gray-600">No Pokémon found.</p>
       )}
 
-      <PokemonInfoPanel
-        selectedPokemon={selectedPokemon}
-        setSelectedPokemon={setSelectedPokemon}
-      />
+      <PokemonTabs ref={tabsRef} />
 
     </main>
   );
