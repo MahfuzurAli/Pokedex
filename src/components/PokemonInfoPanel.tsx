@@ -224,7 +224,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                                     type="button"
                                 >
                                     <img
-                                        src={`/${artwork}-artwork.png`}
+                                        src={`/artwork/${artwork}-artwork.png`}
                                         alt={`${artwork} artwork`}
                                         className="w-8 h-8 object-contain"
                                         draggable={false}

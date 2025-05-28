@@ -213,7 +213,7 @@ export default function HomePage() {
             aria-label={type}
           >
             <img
-              src={`/icons/${type}.svg`}
+              src={`/type icons/${type}.svg`}
               alt={type}
               className="w-15 h-15"
               draggable={false}
@@ -283,7 +283,7 @@ export default function HomePage() {
             type="button"
           >
             <img
-              src={`/${style}-artwork.png`}
+              src={`/artwork/${style}-artwork.png`}
               alt={`${style} artwork`}
               className="w-8 h-8 object-contain"
               draggable={false}
@@ -379,7 +379,7 @@ export default function HomePage() {
                 >
                   {regionalFormData?.formName?.toLowerCase().includes("alola") ? (
                     <img
-                      src="/alola-symbol.png"
+                      src="/symbols/alola-symbol.png"
                       alt="Alolan Form"
                       className={`w-4 h-4 object-contain transition duration-200
                         ${isRegionalActive
@@ -390,7 +390,7 @@ export default function HomePage() {
                     />
                   ) : regionalFormData?.formName?.toLowerCase().includes("galar") ? (
                     <img
-                      src="/galar-symbol.png"
+                      src="/symbols/galar-symbol.png"
                       alt="Galarian Form"
                       className={`w-4 h-4 object-contain transition duration-200
                         ${isRegionalActive
@@ -401,7 +401,7 @@ export default function HomePage() {
                     />
                   ) : regionalFormData?.formName?.toLowerCase().includes("hisui") ? (
                     <img
-                      src="/hisui-symbol.png"
+                      src="/symbols/hisui-symbol.png"
                       alt="Hisuian Form"
                       className={`w-4 h-4 object-contain transition duration-200
                         ${isRegionalActive
@@ -412,7 +412,7 @@ export default function HomePage() {
                     />
                   ) : regionalFormData?.formName?.toLowerCase().includes("paldea") ? (
                     <img
-                      src="/paldea-symbol.png"
+                      src="/symbols/paldea-symbol.png"
                       alt="Paldean Form"
                       className={`w-4 h-4 object-contain transition duration-200
                         ${isRegionalActive
