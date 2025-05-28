@@ -46,7 +46,7 @@ export default function HomePage() {
   const [sortOption, setSortOption] = useState("number-asc");
   const [shinyActive, setShinyActive] = useState<Record<number, boolean>>({});
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
-  const [regionalFormActive, setRegionalFormActive] = useState<{ [pokemonId: number]: boolean }>({});
+  const [regionalFormActive, setRegionalFormActive] = useState<{ [pokemonId: number]: string | null }>({});
   const [regionalAbilities, setRegionalAbilities] = useState<Record<number, string[]>>({});
   const tabsRef = useRef<PokemonTabsHandle>(null);
 
@@ -61,7 +61,7 @@ export default function HomePage() {
   function toggleRegionalForm(pokemonId: number) {
     setRegionalFormActive(prev => ({
       ...prev,
-      [pokemonId]: !prev[pokemonId],
+      [pokemonId]: prev[pokemonId] ? null : "active",
     }));
   }
 
@@ -83,13 +83,23 @@ export default function HomePage() {
 
   useEffect(() => {
     // For each active regional form, fetch abilities if not already cached
-    Object.entries(regionalFormActive).forEach(([pokemonId, isActive]) => {
-      if (isActive) {
+    Object.entries(regionalFormActive).forEach(([pokemonId, activeKey]) => {
+      if (activeKey) {
         const basePokemon = pokemonList.find(p => p.id === Number(pokemonId));
         if (!basePokemon) return;
-        const regionalFormData = regionalForms[basePokemon.rawName as keyof typeof regionalForms];
-        if (regionalFormData && !regionalAbilities[regionalFormData.pokedexId]) {
-          fetchRegionalAbilities(regionalFormData.pokedexId);
+
+        // Special handling for Meowth's forms
+        if (basePokemon.rawName === "meowth") {
+          if (activeKey === "alola" && regionalForms["meowth"] && !regionalAbilities[regionalForms["meowth"].pokedexId]) {
+            fetchRegionalAbilities(regionalForms["meowth"].pokedexId);
+          } else if (activeKey === "galar" && regionalForms["meowth_galar"] && !regionalAbilities[regionalForms["meowth_galar"].pokedexId]) {
+            fetchRegionalAbilities(regionalForms["meowth_galar"].pokedexId);
+          }
+        } else {
+          const regionalFormData = regionalForms[basePokemon.rawName as keyof typeof regionalForms];
+          if (regionalFormData && !regionalAbilities[regionalFormData.pokedexId]) {
+            fetchRegionalAbilities(regionalFormData.pokedexId);
+          }
         }
       }
     });
@@ -300,21 +310,55 @@ export default function HomePage() {
 
           // Check if this Pokémon has a regional form
           const hasRegionalForm = regionalForms.hasOwnProperty(pokemon.rawName);
-          const isRegionalActive = regionalFormActive[pokemon.id] === true;
+          const isRegionalActive = regionalFormActive[pokemon.id] !== null && regionalFormActive[pokemon.id] !== undefined;
 
           const basePokemon = pokemon;
           const regionalFormData = regionalForms[pokemon.rawName as keyof typeof regionalForms];
 
           // Determine which form data to use
-          // Determine which form data to use
-          const displayPokemonId = isRegionalActive && regionalFormData ? regionalFormData.pokedexId : basePokemon.id;
-          const displayName = isRegionalActive && regionalFormData ? `${basePokemon.name} (${regionalFormData.formName})` : basePokemon.name;
-          const displayTypes = isRegionalActive && regionalFormData ? regionalFormData.types : basePokemon.types;
+          let displayPokemonId = basePokemon.id;
+          let displayName = basePokemon.name;
+          let displayTypes = basePokemon.types;
+
+          if (basePokemon.rawName === "meowth") {
+            if (regionalFormActive[basePokemon.id] === "alola" && regionalForms["meowth"]) {
+              displayPokemonId = regionalForms["meowth"].pokedexId;
+              displayName = `${basePokemon.name} (Alolan)`;
+              displayTypes = regionalForms["meowth"].types;
+            } else if (regionalFormActive[basePokemon.id] === "galar" && regionalForms["meowth_galar"]) {
+              displayPokemonId = regionalForms["meowth_galar"].pokedexId;
+              displayName = `${basePokemon.name} (Galarian)`;
+              displayTypes = regionalForms["meowth_galar"].types;
+            }
+          } else if (isRegionalActive && regionalFormData) {
+            displayPokemonId = regionalFormData.pokedexId;
+            displayName = `${basePokemon.name} (${regionalFormData.formName})`;
+            displayTypes = regionalFormData.types;
+          }
           // Abilities always come from basePokemon
-          const displayAbilities =
-            isRegionalActive && regionalFormData && regionalAbilities[regionalFormData.pokedexId]
-              ? regionalAbilities[regionalFormData.pokedexId]
-              : basePokemon.abilities.map(a => a.name);
+          let displayAbilities = basePokemon.abilities.map(a => a.name);
+
+          if (basePokemon.rawName === "meowth") {
+            if (
+              regionalFormActive[basePokemon.id] === "alola" &&
+              regionalForms["meowth"] &&
+              regionalAbilities[regionalForms["meowth"].pokedexId]
+            ) {
+              displayAbilities = regionalAbilities[regionalForms["meowth"].pokedexId];
+            } else if (
+              regionalFormActive[basePokemon.id] === "galar" &&
+              regionalForms["meowth_galar"] &&
+              regionalAbilities[regionalForms["meowth_galar"].pokedexId]
+            ) {
+              displayAbilities = regionalAbilities[regionalForms["meowth_galar"].pokedexId];
+            }
+          } else if (
+            isRegionalActive &&
+            regionalFormData &&
+            regionalAbilities[regionalFormData.pokedexId]
+          ) {
+            displayAbilities = regionalAbilities[regionalFormData.pokedexId];
+          }
 
 
           // Determine image URL dynamically based on selected form and shiny status
@@ -369,7 +413,54 @@ export default function HomePage() {
               )}
 
               {/* Regional form toggle button */}
-              {hasRegionalForm && (
+              {basePokemon.rawName === "meowth" ? (
+                <div className="absolute top-2 right-2 flex flex-col gap-1">
+                  {/* Alolan Meowth Toggle */}
+                  <button
+                    className="group w-6 h-6"
+                    title="Toggle Alolan Form"
+                    aria-label="Toggle Alolan Meowth"
+                    type="button"
+                    onClick={() => setRegionalFormActive(prev => ({
+                      ...prev,
+                      [basePokemon.id]: prev[basePokemon.id] === "alola" ? null : "alola"
+                    }))}
+                  >
+                    <img
+                      src="/symbols/alola-symbol.png"
+                      alt="Alolan Form"
+                      className={`w-4 h-4 object-contain transition duration-200
+                        ${regionalFormActive[basePokemon.id] === "alola"
+                          ? "filter invert sepia saturate-[5000%] hue-rotate-[180deg] opacity-90"
+                          : ""}
+                        group-hover:filter group-hover:invert group-hover:sepia group-hover:saturate-[5000%] group-hover:hue-rotate-[180deg] group-hover:opacity-90`}
+                      draggable={false}
+                    />
+                  </button>
+                  {/* Galarian Meowth Toggle */}
+                  <button
+                    className="group w-6 h-6"
+                    title="Toggle Galarian Form"
+                    aria-label="Toggle Galarian Meowth"
+                    type="button"
+                    onClick={() => setRegionalFormActive(prev => ({
+                      ...prev,
+                      [basePokemon.id]: prev[basePokemon.id] === "galar" ? null : "galar"
+                    }))}
+                  >
+                    <img
+                      src="/symbols/galar-symbol.png"
+                      alt="Galarian Form"
+                      className={`w-4 h-4 object-contain transition duration-200
+                        ${regionalFormActive[basePokemon.id] === "galar"
+                          ? "filter invert sepia saturate-[5000%] hue-rotate-[180deg] opacity-90"
+                          : ""}
+                        group-hover:filter group-hover:invert group-hover:sepia group-hover:saturate-[5000%] group-hover:hue-rotate-[180deg] group-hover:opacity-90`}
+                      draggable={false}
+                    />
+                  </button>
+                </div>
+              ) : hasRegionalForm && regionalFormData && (
                 <button
                   className="group absolute top-2 right-2 w-6 h-6"
                   title="Toggle Regional Form"
@@ -377,7 +468,7 @@ export default function HomePage() {
                   type="button"
                   onClick={() => toggleRegionalForm(pokemon.id)}
                 >
-                  {regionalFormData?.formName?.toLowerCase().includes("alola") ? (
+                  {regionalFormData.formName?.toLowerCase().includes("alola") ? (
                     <img
                       src="/symbols/alola-symbol.png"
                       alt="Alolan Form"
@@ -388,7 +479,7 @@ export default function HomePage() {
                         group-hover:filter group-hover:invert group-hover:sepia group-hover:saturate-[5000%] group-hover:hue-rotate-[180deg] group-hover:opacity-90`}
                       draggable={false}
                     />
-                  ) : regionalFormData?.formName?.toLowerCase().includes("galar") ? (
+                  ) : regionalFormData.formName?.toLowerCase().includes("galar") ? (
                     <img
                       src="/symbols/galar-symbol.png"
                       alt="Galarian Form"
@@ -399,7 +490,7 @@ export default function HomePage() {
                         group-hover:filter group-hover:invert group-hover:sepia group-hover:saturate-[5000%] group-hover:hue-rotate-[180deg] group-hover:opacity-90`}
                       draggable={false}
                     />
-                  ) : regionalFormData?.formName?.toLowerCase().includes("hisui") ? (
+                  ) : regionalFormData.formName?.toLowerCase().includes("hisui") ? (
                     <img
                       src="/symbols/hisui-symbol.png"
                       alt="Hisuian Form"
@@ -410,7 +501,7 @@ export default function HomePage() {
                         group-hover:filter group-hover:invert group-hover:sepia group-hover:saturate-[5000%] group-hover:hue-rotate-[180deg] group-hover:opacity-90`}
                       draggable={false}
                     />
-                  ) : regionalFormData?.formName?.toLowerCase().includes("paldea") ? (
+                  ) : regionalFormData.formName?.toLowerCase().includes("paldea") ? (
                     <img
                       src="/symbols/paldea-symbol.png"
                       alt="Paldean Form"
@@ -438,8 +529,100 @@ export default function HomePage() {
                 onClick={async () => {
                   let pokemonToOpen = pokemon;
 
-                  // If regional form is active, fetch its data
-                  if (isRegionalActive && regionalFormData) {
+                  // Special handling for Meowth's regional forms
+                  if (
+                    basePokemon.rawName === "meowth" &&
+                    regionalFormActive[basePokemon.id] === "galar" &&
+                    regionalForms["meowth_galar"]
+                  ) {
+                    try {
+                      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${regionalForms["meowth_galar"].pokedexId}`);
+                      if (!res.ok) {
+                        alert("Regional form data not found in PokéAPI.");
+                        return;
+                      }
+                      const data = await res.json();
+                      pokemonToOpen = {
+                        id: data.id,
+                        rawName: data.name,
+                        name: `${basePokemon.name} (Galarian)`,
+                        types: data.types.map((t: any) => t.type.name),
+                        abilities: data.abilities.map((a: any) => ({
+                          name: a.ability.name,
+                          description: "",
+                        })),
+                        images: {
+                          official: data.sprites.other?.['official-artwork']?.front_default ?? "",
+                          home: data.sprites.other?.['home']?.front_default ?? "",
+                          sprite: data.sprites.front_default ?? "",
+                        },
+                        stats: data.stats.map((s: any) => ({
+                          name: s.stat.name,
+                          base_stat: s.base_stat,
+                        })),
+                        moves: data.moves.flatMap((m: any) =>
+                          m.version_group_details
+                            .filter((v: any) => v.move_learn_method.name === "level-up")
+                            .map((v: any) => ({
+                              name: m.move.name,
+                              move_learn_method: v.move_learn_method.name,
+                              level_learned_at: v.level_learned_at,
+                            }))
+                        ),
+                        height: data.height,
+                        weight: data.weight,
+                      };
+                    } catch (e) {
+                      alert("Failed to load regional form data.");
+                      return;
+                    }
+                  } else if (
+                    basePokemon.rawName === "meowth" &&
+                    regionalFormActive[basePokemon.id] === "alola" &&
+                    regionalForms["meowth"]
+                  ) {
+                    try {
+                      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${regionalForms["meowth"].pokedexId}`);
+                      if (!res.ok) {
+                        alert("Regional form data not found in PokéAPI.");
+                        return;
+                      }
+                      const data = await res.json();
+                      pokemonToOpen = {
+                        id: data.id,
+                        rawName: data.name,
+                        name: `${basePokemon.name} (Alolan)`,
+                        types: data.types.map((t: any) => t.type.name),
+                        abilities: data.abilities.map((a: any) => ({
+                          name: a.ability.name,
+                          description: "",
+                        })),
+                        images: {
+                          official: data.sprites.other?.['official-artwork']?.front_default ?? "",
+                          home: data.sprites.other?.['home']?.front_default ?? "",
+                          sprite: data.sprites.front_default ?? "",
+                        },
+                        stats: data.stats.map((s: any) => ({
+                          name: s.stat.name,
+                          base_stat: s.base_stat,
+                        })),
+                        moves: data.moves.flatMap((m: any) =>
+                          m.version_group_details
+                            .filter((v: any) => v.move_learn_method.name === "level-up")
+                            .map((v: any) => ({
+                              name: m.move.name,
+                              move_learn_method: v.move_learn_method.name,
+                              level_learned_at: v.level_learned_at,
+                            }))
+                        ),
+                        height: data.height,
+                        weight: data.weight,
+                      };
+                    } catch (e) {
+                      alert("Failed to load regional form data.");
+                      return;
+                    }
+                  } else if (isRegionalActive && regionalFormData) {
                     try {
                       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${regionalFormData.pokedexId}`);
                       if (!res.ok) {
@@ -483,7 +666,7 @@ export default function HomePage() {
                     }
                   }
 
-                  // Handle minimized/active logic
+                  // Handle minimized/active logic...
                   if (
                     tabsRef.current &&
                     tabsRef.current.activeTabId === pokemonToOpen.id
@@ -501,7 +684,18 @@ export default function HomePage() {
                 type="button"
                 aria-label={`Show more info about ${displayName}`}
               >
-                #{displayPokemonId.toString().padStart(4, "0")}<br />
+                
+                #{
+                  // Use basePokedexId for regional forms, else use basePokemon.id
+                  (basePokemon.rawName === "meowth" && regionalFormActive[basePokemon.id] === "alola" && regionalForms["meowth"])
+                    ? regionalForms["meowth"].basePokedexId.toString().padStart(3, "0")
+                    : (basePokemon.rawName === "meowth" && regionalFormActive[basePokemon.id] === "galar" && regionalForms["meowth_galar"])
+                      ? regionalForms["meowth_galar"].basePokedexId.toString().padStart(3, "0")
+                      : (isRegionalActive && regionalFormData && regionalFormData.basePokedexId)
+                        ? regionalFormData.basePokedexId.toString().padStart(3, "0")
+                        : basePokemon.id.toString().padStart(3, "0")
+                }
+                <br />
                 {displayName}
               </button>
 

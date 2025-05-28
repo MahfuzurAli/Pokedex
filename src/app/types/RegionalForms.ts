@@ -132,7 +132,7 @@ export const regionalForms = {
     // Galarian Forms (Gen 8)
     meowth_galar: {
         formName: "Galarian",
-        pokedexId: 1100,
+        pokedexId: 10161,
         basePokedexId: 52,
         types: ["steel"],
     },
