@@ -343,13 +343,59 @@ export default function HomePage() {
               {/* Regional form toggle button */}
               {hasRegionalForm && (
                 <button
-                  className="absolute top-2 right-2 w-6 h-6 text-blue-500 hover:text-blue-400"
+                  className="group absolute top-2 right-2 w-6 h-6"
                   title="Toggle Regional Form"
                   aria-label={`Toggle regional form for ${basePokemon.name}`}
                   type="button"
                   onClick={() => toggleRegionalForm(pokemon.id)}
                 >
-                  ▶
+                  {regionalFormData?.formName?.toLowerCase().includes("alola") ? (
+                    <img
+                      src="/alola-symbol.png"
+                      alt="Alolan Form"
+                      className={`w-4 h-4 object-contain transition duration-200
+                        ${isRegionalActive
+                          ? "filter invert sepia saturate-[5000%] hue-rotate-[180deg] opacity-90"
+                          : ""}
+                        group-hover:filter group-hover:invert group-hover:sepia group-hover:saturate-[5000%] group-hover:hue-rotate-[180deg] group-hover:opacity-90`}
+                      draggable={false}
+                    />
+                  ) : regionalFormData?.formName?.toLowerCase().includes("galar") ? (
+                    <img
+                      src="/galar-symbol.png"
+                      alt="Galarian Form"
+                      className={`w-4 h-4 object-contain transition duration-200
+                        ${isRegionalActive
+                          ? "filter invert sepia saturate-[5000%] hue-rotate-[180deg] opacity-90"
+                          : ""}
+                        group-hover:filter group-hover:invert group-hover:sepia group-hover:saturate-[5000%] group-hover:hue-rotate-[180deg] group-hover:opacity-90`}
+                      draggable={false}
+                    />
+                  ) : regionalFormData?.formName?.toLowerCase().includes("hisui") ? (
+                    <img
+                      src="/hisui-symbol.png"
+                      alt="Hisuian Form"
+                      className={`w-4 h-4 object-contain transition duration-200
+                        ${isRegionalActive
+                          ? "filter invert sepia saturate-[5000%] hue-rotate-[180deg] opacity-90"
+                          : ""}
+                        group-hover:filter group-hover:invert group-hover:sepia group-hover:saturate-[5000%] group-hover:hue-rotate-[180deg] group-hover:opacity-90`}
+                      draggable={false}
+                    />
+                  ) : regionalFormData?.formName?.toLowerCase().includes("paldea") ? (
+                    <img
+                      src="/paldea-symbol.png"
+                      alt="Paldean Form"
+                      className={`w-4 h-4 object-contain transition duration-200
+                        ${isRegionalActive
+                          ? "filter invert sepia saturate-[5000%] hue-rotate-[180deg] opacity-90"
+                          : ""}
+                        group-hover:filter group-hover:invert group-hover:sepia group-hover:saturate-[5000%] group-hover:hue-rotate-[180deg] group-hover:opacity-90`}
+                      draggable={false}
+                    />
+                  ) : (
+                    <span className="text-blue-500 group-hover:text-blue-400">▶</span>
+                  )}
                 </button>
               )}
 
