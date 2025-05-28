@@ -66,6 +66,10 @@ export default function HomePage() {
     if (regionalAbilities[pokedexId]) return; // Already cached
     try {
       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokedexId}`);
+      if (!res.ok) {
+        setRegionalAbilities(prev => ({ ...prev, [pokedexId]: ["unknown"] }));
+        return;
+      }
       const data = await res.json();
       const abilities = data.abilities.map((a: any) => a.ability.name);
       setRegionalAbilities(prev => ({ ...prev, [pokedexId]: abilities }));
@@ -354,12 +358,64 @@ export default function HomePage() {
               />
 
               <button
-                onClick={() => setSelectedPokemon((prev) => (prev?.id === pokemon.id ? null : pokemon))}
+                onClick={async () => {
+                  if (isRegionalActive && regionalFormData) {
+                    // If already open for this regional form, close it
+                    if (selectedPokemon?.id === regionalFormData.pokedexId) {
+                      setSelectedPokemon(null);
+                      return;
+                    }
+                    try {
+                      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${regionalFormData.pokedexId}`);
+                      if (!res.ok) {
+                        alert("Regional form data not found in PokéAPI.");
+                        return;
+                      }
+                      const data = await res.json();
+
+                      setSelectedPokemon({
+                        id: data.id,
+                        rawName: data.name,
+                        name: `${basePokemon.name} (${regionalFormData.formName})`,
+                        types: data.types.map((t: any) => t.type.name),
+                        abilities: data.abilities.map((a: any) => ({
+                          name: a.ability.name,
+                          description: "",
+                        })),
+                        images: {
+                          official: data.sprites.other?.['official-artwork']?.front_default ?? "",
+                          home: data.sprites.other?.['home']?.front_default ?? "",
+                          sprite: data.sprites.front_default ?? "",
+                        },
+                        stats: data.stats.map((s: any) => ({
+                          name: s.stat.name,
+                          base_stat: s.base_stat,
+                        })),
+                        moves: data.moves.flatMap((m: any) =>
+                          m.version_group_details
+                            .filter((v: any) => v.move_learn_method.name === "level-up")
+                            .map((v: any) => ({
+                              name: m.move.name,
+                              move_learn_method: v.move_learn_method.name,
+                              level_learned_at: v.level_learned_at,
+                            }))
+                        ),
+                        height: data.height,
+                        weight: data.weight,
+                      });
+                    } catch (e) {
+                      alert("Failed to load regional form data.");
+                    }
+                  } else {
+                    // For base form, keep your original logic
+                    setSelectedPokemon((prev) => (prev?.id === pokemon.id ? null : pokemon));
+                  }
+                }}
                 className="font-medium text-center hover:underline"
                 type="button"
                 aria-label={`Show more info about ${displayName}`}
               >
-                #{(isRegionalActive && regionalFormData ? regionalFormData.basePokedexId : displayPokemonId).toString().padStart(4, "0")}<br />
+                #{displayPokemonId.toString().padStart(4, "0")}<br />
                 {displayName}
               </button>
 

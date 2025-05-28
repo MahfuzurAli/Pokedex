@@ -267,12 +267,20 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon }
                             Moves (Level-up)
                         </h3>
                         <ul className="max-h-48 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-900">
-                            {selectedPokemon.moves
-                                .filter((move) => move.move_learn_method === "level-up")
+                            {Array.from(
+                                new Map(
+                                    selectedPokemon.moves
+                                        .filter((move) => move.move_learn_method === "level-up")
+                                        .map((move) => [
+                                            `${move.name}-${move.level_learned_at}`,
+                                            move,
+                                        ])
+                                ).values()
+                            )
                                 .sort((a, b) => a.level_learned_at - b.level_learned_at)
-                                .map((move) => (
+                                .map((move, idx) => (
                                     <li
-                                        key={move.name}
+                                        key={`${move.name}-${move.level_learned_at}-${idx}`}
                                         className="flex justify-between items-center bg-indigo-50 hover:bg-indigo-100 rounded-md px-4 py-2 cursor-default transition-colors"
                                     >
                                         <span className="font-medium text-indigo-900">
