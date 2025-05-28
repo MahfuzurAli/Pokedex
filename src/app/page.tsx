@@ -409,8 +409,15 @@ export default function HomePage() {
                     }
                   }
 
-                  // Open the tab using the ref
-                  tabsRef.current?.openTab(pokemonToOpen);
+                  // If the tab is already active, minimize instead of reopening
+                  if (
+                    tabsRef.current &&
+                    tabsRef.current.activeTabId === pokemonToOpen.id
+                  ) {
+                    tabsRef.current.minimizePanel();
+                  } else {
+                    tabsRef.current?.openTab(pokemonToOpen);
+                  }
                 }}
                 className="font-medium text-center hover:underline"
                 type="button"

@@ -4,8 +4,9 @@ import { Pokemon } from "@/app/types/Pokemon";
 
 export interface PokemonTabsHandle {
     openTab: (pokemon: Pokemon) => void;
+    minimizePanel: () => void;
+    activeTabId: number | null;
 }
-
 interface PokemonTabsProps { }
 
 const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>((props, ref) => {
@@ -16,6 +17,8 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>((props, ref)
     // Expose openTab to parent via ref
     useImperativeHandle(ref, () => ({
         openTab,
+        minimizePanel,
+        activeTabId,
     }));
 
     // Open or activate a tab for a Pokémon
