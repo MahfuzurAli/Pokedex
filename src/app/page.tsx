@@ -202,13 +202,22 @@ export default function HomePage() {
             key={type}
             onClick={() => setSelectedType(type)}
             className={`
-              text-white text-xs px-3 py-1 rounded-full font-semibold capitalize
-              ${typeColors[type] || typeColors["unknown"]}
+              flex items-center justify-center
+              rounded-full
               ${selectedType === type ? "border-2 border-black" : "border-2 border-transparent"}
-              h-8
+              h-15 w-15 p-1
+              transition
+              focus:outline-none
             `}
+            title={type.charAt(0).toUpperCase() + type.slice(1)}
+            aria-label={type}
           >
-            {type}
+            <img
+              src={`/icons/${type}.svg`}
+              alt={type}
+              className="w-15 h-15"
+              draggable={false}
+            />
           </button>
         ))}
 
@@ -257,10 +266,29 @@ export default function HomePage() {
           <button
             key={style}
             onClick={() => setImageStyle(style)}
-            className={`text-sm px-2 py-1 rounded-full ${imageStyle === style ? 'bg-gray-800 text-white' : 'bg-gray-200 text-black'}`}
-            title={style === 'official' ? "Official Artwork" : style === 'home' ? "Home Sprite" : "Traditional Sprite"}
+            className={`
+        p-1 rounded
+        bg-transparent
+        ${imageStyle === style ? 'ring-2 ring-indigo-500' : ''}
+        transition
+        hover:ring-2 hover:ring-indigo-300
+      `}
+            title={
+              style === 'official'
+                ? "Official Artwork"
+                : style === 'home'
+                  ? "Home Artwork"
+                  : "Sprite Artwork"
+            }
+            type="button"
           >
-            {style === 'official' ? '🎨' : style === 'home' ? '🏠' : '🎮'}
+            <img
+              src={`/${style}-artwork.png`}
+              alt={`${style} artwork`}
+              className="w-8 h-8 object-contain"
+              draggable={false}
+              style={{ background: "transparent" }}
+            />
           </button>
         ))}
       </div>

@@ -207,12 +207,29 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                                 <button
                                     key={artwork}
                                     onClick={() => setSelectedArtwork(artwork)}
-                                    className={`px-2 py-0.5 rounded border transition-colors ${selectedArtwork === artwork
-                                        ? "bg-indigo-600 text-white border-indigo-600"
-                                        : "bg-indigo-100 text-indigo-900 border-indigo-300 hover:bg-indigo-200"
-                                        }`}
+                                    className={`
+        p-1 rounded
+        bg-transparent
+        ${selectedArtwork === artwork ? 'ring-2 ring-indigo-500' : ''}
+        transition
+        hover:ring-2 hover:ring-indigo-300
+      `}
+                                    title={
+                                        artwork === "official"
+                                            ? "Official Artwork"
+                                            : artwork === "home"
+                                                ? "Home Artwork"
+                                                : "Sprite Artwork"
+                                    }
+                                    type="button"
                                 >
-                                    {artwork.charAt(0).toUpperCase() + artwork.slice(1)}
+                                    <img
+                                        src={`/${artwork}-artwork.png`}
+                                        alt={`${artwork} artwork`}
+                                        className="w-8 h-8 object-contain"
+                                        draggable={false}
+                                        style={{ background: "transparent" }}
+                                    />
                                 </button>
                             ))}
                         </div>
