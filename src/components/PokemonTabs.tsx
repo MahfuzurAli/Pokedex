@@ -68,7 +68,7 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>((props, ref)
                     <button
                         key={pokemon.id}
                         onClick={() => (minimized ? restorePanel(pokemon.id) : setActiveTabId(pokemon.id))}
-                        className={`flex items-center justify-between bg-white shadow rounded-t-lg px-3 py-2 border border-gray-300
+                        className={`flex items-center justify-between bg-white shadow rounded-l-full rounded-r-none px-3 py-2 border border-gray-300
                           ${activeTabId === pokemon.id && !minimized ? "border-indigo-500 bg-indigo-100" : ""}
                           hover:bg-indigo-50 transition-colors relative`}
                         style={{ minWidth: 80 }}
