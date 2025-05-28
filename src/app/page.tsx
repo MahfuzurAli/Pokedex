@@ -346,7 +346,12 @@ export default function HomePage() {
                 </button>
               )}
 
-              <img src={imageUrl} alt={displayName} className="w-35 h-35 object-contain mb-2" />
+              <img
+                src={imageUrl}
+                alt={displayName}
+                className="w-35 h-35 object-contain mb-2"
+                loading="lazy"
+              />
 
               <button
                 onClick={() => setSelectedPokemon((prev) => (prev?.id === pokemon.id ? null : pokemon))}
