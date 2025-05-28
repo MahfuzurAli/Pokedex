@@ -58,6 +58,8 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
 
 
         async function fetchAbilitiesDescriptions() {
+            // Clear abilities before fetching new ones
+            setAbilitiesWithDesc([]);
             if (!selectedPokemon) {
                 setAbilitiesWithDesc([]);
                 return;

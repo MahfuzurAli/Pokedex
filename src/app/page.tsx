@@ -409,12 +409,16 @@ export default function HomePage() {
                     }
                   }
 
-                  // If the tab is already active, minimize instead of reopening
+                  // Handle minimized/active logic
                   if (
                     tabsRef.current &&
                     tabsRef.current.activeTabId === pokemonToOpen.id
                   ) {
-                    tabsRef.current.minimizePanel();
+                    if (tabsRef.current.isMinimized && tabsRef.current.isMinimized()) {
+                      tabsRef.current.restorePanel?.(pokemonToOpen.id);
+                    } else {
+                      tabsRef.current.minimizePanel();
+                    }
                   } else {
                     tabsRef.current?.openTab(pokemonToOpen);
                   }
