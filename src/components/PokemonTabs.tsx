@@ -67,10 +67,18 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>((props, ref)
                 {tabs.map((pokemon) => (
                     <button
                         key={pokemon.id}
-                        onClick={() => (minimized ? restorePanel(pokemon.id) : setActiveTabId(pokemon.id))}
+                        onClick={() => {
+                            if (activeTabId === pokemon.id && !minimized) {
+                                minimizePanel();
+                            } else if (minimized) {
+                                restorePanel(pokemon.id);
+                            } else {
+                                setActiveTabId(pokemon.id);
+                            }
+                        }}
                         className={`flex items-center justify-between bg-white shadow rounded-l-full rounded-r-none px-3 py-2 border border-gray-300
-                          ${activeTabId === pokemon.id && !minimized ? "border-indigo-500 bg-indigo-100" : ""}
-                          hover:bg-indigo-50 transition-colors relative`}
+          ${activeTabId === pokemon.id && !minimized ? "border-indigo-500 bg-indigo-100" : ""}
+          hover:bg-indigo-50 transition-colors relative`}
                         style={{ minWidth: 80 }}
                     >
                         <img
