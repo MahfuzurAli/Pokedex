@@ -375,8 +375,8 @@ export default function HomePage() {
             displayTypes = regionalFormData.types;
           }
           // Abilities always come from basePokemon
-                    let displayAbilities = basePokemon.abilities.map(a => a.name);
-          
+          let displayAbilities = basePokemon.abilities.map(a => a.name);
+
           // Mega Evolution takes priority
           if (
             megaActive[basePokemon.id] &&
@@ -608,8 +608,54 @@ export default function HomePage() {
                 onClick={async () => {
                   let pokemonToOpen = pokemon;
 
-                  // Special handling for Meowth's regional forms
+                  // Mega Evolution takes priority
                   if (
+                    megaActive[basePokemon.id] &&
+                    megaEvolutions[basePokemon.rawName]
+                  ) {
+                    try {
+                      const megaData = megaEvolutions[basePokemon.rawName];
+                      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${megaData.pokedexId}`);
+                      if (!res.ok) {
+                        alert("Mega Evolution data not found in PokéAPI.");
+                        return;
+                      }
+                      const data = await res.json();
+                      pokemonToOpen = {
+                        id: data.id,
+                        rawName: data.name,
+                        name: `${basePokemon.name} (${megaData.formName})`,
+                        types: data.types.map((t: any) => t.type.name),
+                        abilities: data.abilities.map((a: any) => ({
+                          name: a.ability.name,
+                          description: "",
+                        })),
+                        images: {
+                          official: data.sprites.other?.['official-artwork']?.front_default ?? "",
+                          home: data.sprites.other?.['home']?.front_default ?? "",
+                          sprite: data.sprites.front_default ?? "",
+                        },
+                        stats: data.stats.map((s: any) => ({
+                          name: s.stat.name,
+                          base_stat: s.base_stat,
+                        })),
+                        moves: data.moves.flatMap((m: any) =>
+                          m.version_group_details
+                            .filter((v: any) => v.move_learn_method.name === "level-up")
+                            .map((v: any) => ({
+                              name: m.move.name,
+                              move_learn_method: v.move_learn_method.name,
+                              level_learned_at: v.level_learned_at,
+                            }))
+                        ),
+                        height: data.height,
+                        weight: data.weight,
+                      };
+                    } catch (e) {
+                      alert("Failed to load Mega Evolution data.");
+                      return;
+                    }
+                  } else if (
                     basePokemon.rawName === "meowth" &&
                     regionalFormActive[basePokemon.id] === "galar" &&
                     regionalForms["meowth_galar"]
@@ -763,7 +809,6 @@ export default function HomePage() {
                 type="button"
                 aria-label={`Show more info about ${displayName}`}
               >
-
                 #{
                   // Use basePokedexId for regional forms, else use basePokemon.id
                   (basePokemon.rawName === "meowth" && regionalFormActive[basePokemon.id] === "alola" && regionalForms["meowth"])
