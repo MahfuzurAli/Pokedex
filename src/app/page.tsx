@@ -9,6 +9,7 @@ import PokemonInfoPanel from "@/components/PokemonInfoPanel";
 import { Pokemon } from "./types/Pokemon";
 import { regionalForms } from "./types/RegionalForms";
 import PokemonTabs, { PokemonTabsHandle } from "@/components/PokemonTabs";
+import { megaEvolutions } from "./types/MegaEvolutions";
 
 const typeColors: Record<string, string> = {
   normal: "bg-[#828282]",
@@ -49,6 +50,7 @@ export default function HomePage() {
   const [regionalFormActive, setRegionalFormActive] = useState<{ [pokemonId: number]: string | null }>({});
   const [regionalAbilities, setRegionalAbilities] = useState<Record<number, string[]>>({});
   const tabsRef = useRef<PokemonTabsHandle>(null);
+  const [megaActive, setMegaActive] = useState<{ [pokemonId: number]: boolean }>({});
 
 
   function toggleShiny(id: number) {
@@ -105,6 +107,21 @@ export default function HomePage() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [regionalFormActive, pokemonList]);
+
+  useEffect(() => {
+    // For each active Mega, fetch abilities if not already cached
+    Object.entries(megaActive).forEach(([pokemonId, isActive]) => {
+      if (isActive) {
+        const basePokemon = pokemonList.find(p => p.id === Number(pokemonId));
+        if (!basePokemon) return;
+        const megaData = megaEvolutions[basePokemon.rawName];
+        if (megaData && !regionalAbilities[megaData.pokedexId]) {
+          fetchRegionalAbilities(megaData.pokedexId);
+        }
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [megaActive, pokemonList]);
 
   useEffect(() => {
     async function loadData() {
@@ -320,6 +337,28 @@ export default function HomePage() {
           let displayName = basePokemon.name;
           let displayTypes = basePokemon.types;
 
+          // Mega Evolution takes priority
+          if (megaActive[basePokemon.id] && megaEvolutions[basePokemon.rawName]) {
+            const megaData = megaEvolutions[basePokemon.rawName];
+            displayPokemonId = megaData.pokedexId;
+            displayName = `${basePokemon.name} (${megaData.formName})`;
+            displayTypes = megaData.types;
+          } else if (basePokemon.rawName === "meowth") {
+            if (regionalFormActive[basePokemon.id] === "alola" && regionalForms["meowth"]) {
+              displayPokemonId = regionalForms["meowth"].pokedexId;
+              displayName = `${basePokemon.name} (Alolan)`;
+              displayTypes = regionalForms["meowth"].types;
+            } else if (regionalFormActive[basePokemon.id] === "galar" && regionalForms["meowth_galar"]) {
+              displayPokemonId = regionalForms["meowth_galar"].pokedexId;
+              displayName = `${basePokemon.name} (Galarian)`;
+              displayTypes = regionalForms["meowth_galar"].types;
+            }
+          } else if (isRegionalActive && regionalFormData) {
+            displayPokemonId = regionalFormData.pokedexId;
+            displayName = `${basePokemon.name} (${regionalFormData.formName})`;
+            displayTypes = regionalFormData.types;
+          }
+
           if (basePokemon.rawName === "meowth") {
             if (regionalFormActive[basePokemon.id] === "alola" && regionalForms["meowth"]) {
               displayPokemonId = regionalForms["meowth"].pokedexId;
@@ -336,9 +375,16 @@ export default function HomePage() {
             displayTypes = regionalFormData.types;
           }
           // Abilities always come from basePokemon
-          let displayAbilities = basePokemon.abilities.map(a => a.name);
-
-          if (basePokemon.rawName === "meowth") {
+                    let displayAbilities = basePokemon.abilities.map(a => a.name);
+          
+          // Mega Evolution takes priority
+          if (
+            megaActive[basePokemon.id] &&
+            megaEvolutions[basePokemon.rawName] &&
+            regionalAbilities[megaEvolutions[basePokemon.rawName].pokedexId]
+          ) {
+            displayAbilities = regionalAbilities[megaEvolutions[basePokemon.rawName].pokedexId];
+          } else if (basePokemon.rawName === "meowth") {
             if (
               regionalFormActive[basePokemon.id] === "alola" &&
               regionalForms["meowth"] &&
@@ -373,7 +419,16 @@ export default function HomePage() {
               imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${displayPokemonId}.png`;
             }
           } else {
-            if (isRegionalActive && regionalFormData) {
+            // Mega Evolution takes priority for image
+            if (megaActive[basePokemon.id] && megaEvolutions[basePokemon.rawName]) {
+              if (imageStyle === 'official') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${displayPokemonId}.png`;
+              } else if (imageStyle === 'home') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${displayPokemonId}.png`;
+              } else if (imageStyle === 'sprite') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPokemonId}.png`;
+              }
+            } else if (isRegionalActive && regionalFormData) {
               if (imageStyle === 'official') {
                 imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${displayPokemonId}.png`;
               } else if (imageStyle === 'home') {
@@ -409,6 +464,30 @@ export default function HomePage() {
                   >
                     <polygon points="12 2 15 9 22 9 16.5 13.5 18.5 21 12 16.5 5.5 21 7.5 13.5 2 9 9 9 12 2" />
                   </svg>
+                </button>
+              )}
+
+              {/* Mega Evolution Toggle Button */}
+              {megaEvolutions[basePokemon.rawName] && (
+                <button
+                  className="group absolute top-2 right-2 w-6 h-6"
+                  title="Toggle Mega Evolution"
+                  aria-label={`Toggle Mega Evolution for ${basePokemon.name}`}
+                  type="button"
+                  onClick={() => setMegaActive(prev => ({
+                    ...prev,
+                    [basePokemon.id]: !prev[basePokemon.id]
+                  }))}
+                >
+                  <img
+                    src="/symbols/mega-symbol.png"
+                    alt="Mega Evolution"
+                    className={`w-4 h-4 object-contain transition duration-200
+                      ${!megaActive[basePokemon.id] ? "grayscale opacity-60" : ""}
+                      group-hover:scale-110
+                    `}
+                    draggable={false}
+                  />
                 </button>
               )}
 
@@ -684,7 +763,7 @@ export default function HomePage() {
                 type="button"
                 aria-label={`Show more info about ${displayName}`}
               >
-                
+
                 #{
                   // Use basePokedexId for regional forms, else use basePokemon.id
                   (basePokemon.rawName === "meowth" && regionalFormActive[basePokemon.id] === "alola" && regionalForms["meowth"])
