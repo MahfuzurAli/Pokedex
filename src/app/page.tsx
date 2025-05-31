@@ -51,6 +51,7 @@ export default function HomePage() {
   const [regionalAbilities, setRegionalAbilities] = useState<Record<number, string[]>>({});
   const tabsRef = useRef<PokemonTabsHandle>(null);
   const [megaActive, setMegaActive] = useState<{ [pokemonId: number]: boolean }>({});
+  const [megaFormActive, setMegaFormActive] = useState<{ [pokemonId: number]: string | null }>({});
 
 
   function toggleShiny(id: number) {
@@ -141,6 +142,31 @@ export default function HomePage() {
     }
     loadData();
   }, []);
+
+  useEffect(() => {
+    Object.entries(megaFormActive).forEach(([pokemonId, form]) => {
+      const basePokemon = pokemonList.find(p => p.id === Number(pokemonId));
+      if (!basePokemon) return;
+
+      if (basePokemon.rawName === "charizard") {
+        if (form === "x" && megaEvolutions["charizard"] && !regionalAbilities[megaEvolutions["charizard"].pokedexId]) {
+          fetchRegionalAbilities(megaEvolutions["charizard"].pokedexId);
+        } else if (form === "y" && megaEvolutions["charizardY"] && !regionalAbilities[megaEvolutions["charizardY"].pokedexId]) {
+          fetchRegionalAbilities(megaEvolutions["charizardY"].pokedexId);
+        }
+      } else if (basePokemon.rawName === "mewtwo") {
+        if (form === "x" && megaEvolutions["mewtwo"] && !regionalAbilities[megaEvolutions["mewtwo"].pokedexId]) {
+          fetchRegionalAbilities(megaEvolutions["mewtwo"].pokedexId);
+        } else if (form === "y" && megaEvolutions["mewtwoY"] && !regionalAbilities[megaEvolutions["mewtwoY"].pokedexId]) {
+          fetchRegionalAbilities(megaEvolutions["mewtwoY"].pokedexId);
+        } else if (form === "y" && megaEvolutions["mewtwo"] && !regionalAbilities[megaEvolutions["mewtwo"].pokedexId + 1]) {
+          // fallback for Mega Mewtwo Y if not in megaEvolutions
+          fetchRegionalAbilities(megaEvolutions["mewtwo"].pokedexId + 1);
+        }
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [megaFormActive, pokemonList]);
 
   // Generation ID Ranges
   const genRanges: Record<string, [number, number]> = {
@@ -338,7 +364,38 @@ export default function HomePage() {
           let displayTypes = basePokemon.types;
 
           // Mega Evolution takes priority
-          if (megaActive[basePokemon.id] && megaEvolutions[basePokemon.rawName]) {
+          // Charizard
+          if (basePokemon.rawName === "charizard") {
+            if (megaFormActive[basePokemon.id] === "x" && megaEvolutions["charizard"]) {
+              displayPokemonId = megaEvolutions["charizard"].pokedexId;
+              displayName = `${basePokemon.name} (Mega X)`;
+              displayTypes = megaEvolutions["charizard"].types;
+            } else if (megaFormActive[basePokemon.id] === "y" && megaEvolutions["charizardY"]) {
+              displayPokemonId = megaEvolutions["charizardY"].pokedexId;
+              displayName = `${basePokemon.name} (Mega Y)`;
+              displayTypes = megaEvolutions["charizardY"].types;
+            }
+          } else if (basePokemon.rawName === "mewtwo") {
+            if (megaFormActive[basePokemon.id] === "x" && megaEvolutions["mewtwo"]) {
+              displayPokemonId = megaEvolutions["mewtwo"].pokedexId;
+              displayName = `${basePokemon.name} (Mega X)`;
+              displayTypes = megaEvolutions["mewtwo"].types;
+            } else if (megaFormActive[basePokemon.id] === "y" && megaEvolutions["mewtwoY"]) {
+              displayPokemonId = megaEvolutions["mewtwoY"].pokedexId;
+              displayName = `${basePokemon.name} (Mega Y)`;
+              displayTypes = megaEvolutions["mewtwoY"].types;
+            }
+          } else if (basePokemon.rawName === "slowbro") {
+            if (megaActive[basePokemon.id] && megaEvolutions["slowbro"]) {
+              displayPokemonId = megaEvolutions["slowbro"].pokedexId;
+              displayName = `${basePokemon.name} (Mega)`;
+              displayTypes = megaEvolutions["slowbro"].types;
+            } else if (regionalFormActive[basePokemon.id] === "galar" && regionalForms["slowbro"]) {
+              displayPokemonId = regionalForms["slowbro"].pokedexId;
+              displayName = `${basePokemon.name} (Galarian)`;
+              displayTypes = regionalForms["slowbro"].types;
+            }
+          } else if (megaActive[basePokemon.id] && megaEvolutions[basePokemon.rawName]) {
             const megaData = megaEvolutions[basePokemon.rawName];
             displayPokemonId = megaData.pokedexId;
             displayName = `${basePokemon.name} (${megaData.formName})`;
@@ -374,11 +431,46 @@ export default function HomePage() {
             displayName = `${basePokemon.name} (${regionalFormData.formName})`;
             displayTypes = regionalFormData.types;
           }
-          // Abilities always come from basePokemon
           let displayAbilities = basePokemon.abilities.map(a => a.name);
 
-          // Mega Evolution takes priority
-          if (
+          // Mega Evolution takes priority (Charizard & Mewtwo multi-form support)
+          if (basePokemon.rawName === "charizard") {
+            if (
+              megaFormActive[basePokemon.id] === "x" &&
+              megaEvolutions["charizard"] &&
+              regionalAbilities[megaEvolutions["charizard"].pokedexId]
+            ) {
+              displayAbilities = regionalAbilities[megaEvolutions["charizard"].pokedexId];
+            } else if (
+              megaFormActive[basePokemon.id] === "y" &&
+              megaEvolutions["charizardY"] &&
+              regionalAbilities[megaEvolutions["charizardY"].pokedexId]
+            ) {
+              displayAbilities = regionalAbilities[megaEvolutions["charizardY"].pokedexId];
+            }
+          } else if (basePokemon.rawName === "mewtwo") {
+            if (
+              megaFormActive[basePokemon.id] === "x" &&
+              megaEvolutions["mewtwo"] &&
+              regionalAbilities[megaEvolutions["mewtwo"].pokedexId]
+            ) {
+              displayAbilities = regionalAbilities[megaEvolutions["mewtwo"].pokedexId];
+            } else if (
+              megaFormActive[basePokemon.id] === "y" &&
+              megaEvolutions["mewtwoY"] &&
+              regionalAbilities[megaEvolutions["mewtwoY"].pokedexId]
+            ) {
+              displayAbilities = regionalAbilities[megaEvolutions["mewtwoY"].pokedexId];
+            } else if (
+              megaFormActive[basePokemon.id] === "y" &&
+              megaEvolutions["mewtwo"] &&
+              regionalAbilities[megaEvolutions["mewtwo"].pokedexId + 1]
+            ) {
+              // fallback: try pokedexId + 1 for Mega Mewtwo Y
+              displayAbilities = regionalAbilities[megaEvolutions["mewtwo"].pokedexId + 1];
+            }
+
+          } else if (
             megaActive[basePokemon.id] &&
             megaEvolutions[basePokemon.rawName] &&
             regionalAbilities[megaEvolutions[basePokemon.rawName].pokedexId]
@@ -411,16 +503,147 @@ export default function HomePage() {
           let imageUrl = "";
 
           if (isShiny) {
-            if (imageStyle === 'official') {
-              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${displayPokemonId}.png`;
-            } else if (imageStyle === 'home') {
-              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${displayPokemonId}.png`;
-            } else if (imageStyle === 'sprite') {
-              imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${displayPokemonId}.png`;
+            if (basePokemon.rawName === "charizard") {
+              if (megaFormActive[basePokemon.id] === "x" && megaEvolutions["charizard"]) {
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${megaEvolutions["charizard"].pokedexId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${megaEvolutions["charizard"].pokedexId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${megaEvolutions["charizard"].pokedexId}.png`;
+                }
+              } else if (megaFormActive[basePokemon.id] === "y" && megaEvolutions["charizardY"]) {
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${megaEvolutions["charizardY"].pokedexId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${megaEvolutions["charizardY"].pokedexId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${megaEvolutions["charizardY"].pokedexId}.png`;
+                }
+              } else {
+                // fallback to normal shiny
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${displayPokemonId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${displayPokemonId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${displayPokemonId}.png`;
+                }
+              }
+            } else if (basePokemon.rawName === "mewtwo") {
+              if (megaFormActive[basePokemon.id] === "x" && megaEvolutions["mewtwo"]) {
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${megaEvolutions["mewtwo"].pokedexId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${megaEvolutions["mewtwo"].pokedexId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${megaEvolutions["mewtwo"].pokedexId}.png`;
+                }
+              } else if (megaFormActive[basePokemon.id] === "y" && megaEvolutions["mewtwoY"]) {
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${megaEvolutions["mewtwoY"].pokedexId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${megaEvolutions["mewtwoY"].pokedexId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${megaEvolutions["mewtwoY"].pokedexId}.png`;
+                }
+              } else if (megaFormActive[basePokemon.id] === "y" && megaEvolutions["mewtwo"]) {
+                // fallback: try pokedexId + 1
+                const fallbackId = megaEvolutions["mewtwo"].pokedexId + 1;
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${fallbackId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${fallbackId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${fallbackId}.png`;
+                }
+              } else {
+                // fallback to normal shiny
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${displayPokemonId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${displayPokemonId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${displayPokemonId}.png`;
+                }
+              }
+            } else {
+              // fallback for all other Pokémon
+              if (imageStyle === 'official') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${displayPokemonId}.png`;
+              } else if (imageStyle === 'home') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${displayPokemonId}.png`;
+              } else if (imageStyle === 'sprite') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${displayPokemonId}.png`;
+              }
             }
           } else {
-            // Mega Evolution takes priority for image
-            if (megaActive[basePokemon.id] && megaEvolutions[basePokemon.rawName]) {
+            // Not shiny
+            if (basePokemon.rawName === "charizard") {
+              if (megaFormActive[basePokemon.id] === "x" && megaEvolutions["charizard"]) {
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${megaEvolutions["charizard"].pokedexId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${megaEvolutions["charizard"].pokedexId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${megaEvolutions["charizard"].pokedexId}.png`;
+                }
+              } else if (megaFormActive[basePokemon.id] === "y" && megaEvolutions["charizardY"]) {
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${megaEvolutions["charizardY"].pokedexId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${megaEvolutions["charizardY"].pokedexId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${megaEvolutions["charizardY"].pokedexId}.png`;
+                }
+              } else {
+                // fallback to normal
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${displayPokemonId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${displayPokemonId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPokemonId}.png`;
+                }
+              }
+            } else if (basePokemon.rawName === "mewtwo") {
+              if (megaFormActive[basePokemon.id] === "x" && megaEvolutions["mewtwo"]) {
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${megaEvolutions["mewtwo"].pokedexId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${megaEvolutions["mewtwo"].pokedexId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${megaEvolutions["mewtwo"].pokedexId}.png`;
+                }
+              } else if (megaFormActive[basePokemon.id] === "y" && megaEvolutions["mewtwoY"]) {
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${megaEvolutions["mewtwoY"].pokedexId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${megaEvolutions["mewtwoY"].pokedexId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${megaEvolutions["mewtwoY"].pokedexId}.png`;
+                }
+              } else if (megaFormActive[basePokemon.id] === "y" && megaEvolutions["mewtwo"]) {
+                // fallback: try pokedexId + 1
+                const fallbackId = megaEvolutions["mewtwo"].pokedexId + 1;
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${fallbackId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${fallbackId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${fallbackId}.png`;
+                }
+              } else {
+                // fallback to normal
+                if (imageStyle === 'official') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${displayPokemonId}.png`;
+                } else if (imageStyle === 'home') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${displayPokemonId}.png`;
+                } else if (imageStyle === 'sprite') {
+                  imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPokemonId}.png`;
+                }
+              }
+            } else if (megaActive[basePokemon.id] && megaEvolutions[basePokemon.rawName]) {
               if (imageStyle === 'official') {
                 imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${displayPokemonId}.png`;
               } else if (imageStyle === 'home') {
@@ -440,7 +663,6 @@ export default function HomePage() {
               imageUrl = basePokemon.images[imageStyle] ?? "";
             }
           }
-
           return (
             <li key={pokemon.id} className="bg-white rounded-lg shadow p-3 flex flex-col items-center justify-between aspect-square text-sm relative">
               {/* Shiny toggle button */}
@@ -467,8 +689,142 @@ export default function HomePage() {
                 </button>
               )}
 
-              {/* Mega Evolution Toggle Button */}
-              {megaEvolutions[basePokemon.rawName] && (
+              {/* Mega/Regional Toggle Buttons */}
+              {basePokemon.rawName === "charizard" ? (
+                <div className="absolute top-2 right-2 flex flex-col gap-1">
+                  {/* Mega X */}
+                  <button
+                    className={`group w-6 h-6 ${megaFormActive[basePokemon.id] === "x" ? "" : "grayscale opacity-60"}`}
+                    title="Toggle Mega Charizard X"
+                    aria-label="Toggle Mega Charizard X"
+                    type="button"
+                    onClick={() => setMegaFormActive(prev => ({
+                      ...prev,
+                      [basePokemon.id]: prev[basePokemon.id] === "x" ? null : "x"
+                    }))}
+                  >
+                    <img
+                      src="/symbols/mega-symbol.png"
+                      alt="Mega Charizard X"
+                      className="w-4 h-4 object-contain transition duration-200 group-hover:scale-110"
+                      draggable={false}
+                    />
+                  </button>
+                  {/* Mega Y */}
+                  <button
+                    className={`group w-6 h-6 ${megaFormActive[basePokemon.id] === "y" ? "" : "grayscale opacity-60"}`}
+                    title="Toggle Mega Charizard Y"
+                    aria-label="Toggle Mega Charizard Y"
+                    type="button"
+                    onClick={() => setMegaFormActive(prev => ({
+                      ...prev,
+                      [basePokemon.id]: prev[basePokemon.id] === "y" ? null : "y"
+                    }))}
+                  >
+                    <img
+                      src="/symbols/mega-symbol.png"
+                      alt="Mega Charizard Y"
+                      className="w-4 h-4 object-contain transition duration-200 group-hover:scale-110"
+                      draggable={false}
+                    />
+                  </button>
+                </div>
+              ) : basePokemon.rawName === "mewtwo" ? (
+                <div className="absolute top-2 right-2 flex flex-col gap-1">
+                  {/* Mega X */}
+                  <button
+                    className={`group w-6 h-6 ${megaFormActive[basePokemon.id] === "x" ? "" : "grayscale opacity-60"}`}
+                    title="Toggle Mega Mewtwo X"
+                    aria-label="Toggle Mega Mewtwo X"
+                    type="button"
+                    onClick={() => setMegaFormActive(prev => ({
+                      ...prev,
+                      [basePokemon.id]: prev[basePokemon.id] === "x" ? null : "x"
+                    }))}
+                  >
+                    <img
+                      src="/symbols/mega-symbol.png"
+                      alt="Mega Mewtwo X"
+                      className="w-4 h-4 object-contain transition duration-200 group-hover:scale-110"
+                      draggable={false}
+                    />
+                  </button>
+                  {/* Mega Y */}
+                  <button
+                    className={`group w-6 h-6 ${megaFormActive[basePokemon.id] === "y" ? "" : "grayscale opacity-60"}`}
+                    title="Toggle Mega Mewtwo Y"
+                    aria-label="Toggle Mega Mewtwo Y"
+                    type="button"
+                    onClick={() => setMegaFormActive(prev => ({
+                      ...prev,
+                      [basePokemon.id]: prev[basePokemon.id] === "y" ? null : "y"
+                    }))}
+                  >
+                    <img
+                      src="/symbols/mega-symbol.png"
+                      alt="Mega Mewtwo Y"
+                      className="w-4 h-4 object-contain transition duration-200 group-hover:scale-110"
+                      draggable={false}
+                    />
+                  </button>
+                </div>
+              ) : basePokemon.rawName === "slowbro" ? (
+                <div className="absolute top-2 right-2 flex flex-col gap-1">
+                  {/* Galarian */}
+                  <button
+                    className="group w-6 h-6"
+                    title="Toggle Galarian Slowbro"
+                    aria-label="Toggle Galarian Slowbro"
+                    type="button"
+                    onClick={() => {
+                      setRegionalFormActive(prev => ({
+                        ...prev,
+                        [basePokemon.id]: prev[basePokemon.id] === "galar" ? null : "galar"
+                      }));
+                      setMegaActive(prev => ({
+                        ...prev,
+                        [basePokemon.id]: false
+                      }));
+                    }}
+                  >
+                    <img
+                      src="/symbols/galar-symbol.png"
+                      alt="Galarian Form"
+                      className={`w-4 h-4 object-contain transition duration-200
+                        ${regionalFormActive[basePokemon.id] === "galar"
+                          ? "filter invert sepia saturate-[5000%] hue-rotate-[180deg] opacity-90"
+                          : ""}
+                        group-hover:filter group-hover:invert group-hover:sepia group-hover:saturate-[5000%] group-hover:hue-rotate-[180deg] group-hover:opacity-90`}
+                      draggable={false}
+                    />
+                  </button>
+                  {/* Mega */}
+                  <button
+                    className={`group w-6 h-6 ${megaActive[basePokemon.id] ? "" : "grayscale opacity-60"}`}
+                    title="Toggle Mega Slowbro"
+                    aria-label="Toggle Mega Slowbro"
+                    type="button"
+                    onClick={() => {
+                      setMegaActive(prev => ({
+                        ...prev,
+                        [basePokemon.id]: !prev[basePokemon.id]
+                      }));
+                      setRegionalFormActive(prev => ({
+                        ...prev,
+                        [basePokemon.id]: null
+                      }));
+                    }}
+                  >
+                    <img
+                      src="/symbols/mega-symbol.png"
+                      alt="Mega Slowbro"
+                      className="w-4 h-4 object-contain transition duration-200 group-hover:scale-110"
+                      draggable={false}
+                    />
+                  </button>
+                </div>
+              ) : megaEvolutions[basePokemon.rawName] && (
+                // Default single mega button for other Pokémon
                 <button
                   className="group absolute top-2 right-2 w-6 h-6"
                   title="Toggle Mega Evolution"
@@ -539,7 +895,7 @@ export default function HomePage() {
                     />
                   </button>
                 </div>
-              ) : hasRegionalForm && regionalFormData && (
+              ) : hasRegionalForm && regionalFormData && basePokemon.rawName !== "slowbro" && (
                 <button
                   className="group absolute top-2 right-2 w-6 h-6"
                   title="Toggle Regional Form"
@@ -608,23 +964,24 @@ export default function HomePage() {
                 onClick={async () => {
                   let pokemonToOpen = pokemon;
 
-                  // Mega Evolution takes priority
+                  // --- MEGA SLOWBRO ---
                   if (
+                    basePokemon.rawName === "slowbro" &&
                     megaActive[basePokemon.id] &&
-                    megaEvolutions[basePokemon.rawName]
+                    megaEvolutions["slowbro"]
                   ) {
                     try {
-                      const megaData = megaEvolutions[basePokemon.rawName];
+                      const megaData = megaEvolutions["slowbro"];
                       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${megaData.pokedexId}`);
                       if (!res.ok) {
-                        alert("Mega Evolution data not found in PokéAPI.");
+                        alert("Mega Slowbro data not found in PokéAPI.");
                         return;
                       }
                       const data = await res.json();
                       pokemonToOpen = {
                         id: data.id,
                         rawName: data.name,
-                        name: `${basePokemon.name} (${megaData.formName})`,
+                        name: `${basePokemon.name} (Mega)`,
                         types: data.types.map((t: any) => t.type.name),
                         abilities: data.abilities.map((a: any) => ({
                           name: a.ability.name,
@@ -652,18 +1009,135 @@ export default function HomePage() {
                         weight: data.weight,
                       };
                     } catch (e) {
-                      alert("Failed to load Mega Evolution data.");
+                      alert("Failed to load Mega Slowbro data.");
                       return;
                     }
-                  } else if (
+                  }
+
+                  // --- MEGA CHARIZARD X/Y ---
+                  else if (
+                    basePokemon.rawName === "charizard" &&
+                    megaFormActive[basePokemon.id] &&
+                    (megaFormActive[basePokemon.id] === "x" || megaFormActive[basePokemon.id] === "y")
+                  ) {
+                    const formKey = megaFormActive[basePokemon.id] === "x" ? "charizard" : "charizardY";
+                    const formLabel = megaFormActive[basePokemon.id] === "x" ? "Mega X" : "Mega Y";
+                    const megaData = megaEvolutions[formKey];
+                    if (megaData) {
+                      try {
+                        const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${megaData.pokedexId}`);
+                        if (!res.ok) {
+                          alert(`Mega Charizard ${formLabel} data not found in PokéAPI.`);
+                          return;
+                        }
+                        const data = await res.json();
+                        pokemonToOpen = {
+                          id: data.id,
+                          rawName: data.name,
+                          name: `${basePokemon.name} (${formLabel})`,
+                          types: data.types.map((t: any) => t.type.name),
+                          abilities: data.abilities.map((a: any) => ({
+                            name: a.ability.name,
+                            description: "",
+                          })),
+                          images: {
+                            official: data.sprites.other?.['official-artwork']?.front_default ?? "",
+                            home: data.sprites.other?.['home']?.front_default ?? "",
+                            sprite: data.sprites.front_default ?? "",
+                          },
+                          stats: data.stats.map((s: any) => ({
+                            name: s.stat.name,
+                            base_stat: s.base_stat,
+                          })),
+                          moves: data.moves.flatMap((m: any) =>
+                            m.version_group_details
+                              .filter((v: any) => v.move_learn_method.name === "level-up")
+                              .map((v: any) => ({
+                                name: m.move.name,
+                                move_learn_method: v.move_learn_method.name,
+                                level_learned_at: v.level_learned_at,
+                              }))
+                          ),
+                          height: data.height,
+                          weight: data.weight,
+                        };
+                      } catch (e) {
+                        alert(`Failed to load Mega Charizard ${formLabel} data.`);
+                        return;
+                      }
+                    }
+                  }
+
+                  // --- MEGA MEWTWO X/Y ---
+                  else if (
+                    basePokemon.rawName === "mewtwo" &&
+                    megaFormActive[basePokemon.id] &&
+                    (megaFormActive[basePokemon.id] === "x" || megaFormActive[basePokemon.id] === "y")
+                  ) {
+                    let formKey = megaFormActive[basePokemon.id] === "x" ? "mewtwo" : "mewtwoY";
+                    let formLabel = megaFormActive[basePokemon.id] === "x" ? "Mega X" : "Mega Y";
+                    let megaData = megaEvolutions[formKey];
+
+                    // fallback for Mega Y if not present in megaEvolutions
+                    if (megaFormActive[basePokemon.id] === "y" && !megaData && megaEvolutions["mewtwo"]) {
+                      megaData = { ...megaEvolutions["mewtwo"], pokedexId: megaEvolutions["mewtwo"].pokedexId + 1 };
+                    }
+
+                    if (megaData) {
+                      try {
+                        const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${megaData.pokedexId}`);
+                        if (!res.ok) {
+                          alert(`Mega Mewtwo ${formLabel} data not found in PokéAPI.`);
+                          return;
+                        }
+                        const data = await res.json();
+                        pokemonToOpen = {
+                          id: data.id,
+                          rawName: data.name,
+                          name: `${basePokemon.name} (${formLabel})`,
+                          types: data.types.map((t: any) => t.type.name),
+                          abilities: data.abilities.map((a: any) => ({
+                            name: a.ability.name,
+                            description: "",
+                          })),
+                          images: {
+                            official: data.sprites.other?.['official-artwork']?.front_default ?? "",
+                            home: data.sprites.other?.['home']?.front_default ?? "",
+                            sprite: data.sprites.front_default ?? "",
+                          },
+                          stats: data.stats.map((s: any) => ({
+                            name: s.stat.name,
+                            base_stat: s.base_stat,
+                          })),
+                          moves: data.moves.flatMap((m: any) =>
+                            m.version_group_details
+                              .filter((v: any) => v.move_learn_method.name === "level-up")
+                              .map((v: any) => ({
+                                name: m.move.name,
+                                move_learn_method: v.move_learn_method.name,
+                                level_learned_at: v.level_learned_at,
+                              }))
+                          ),
+                          height: data.height,
+                          weight: data.weight,
+                        };
+                      } catch (e) {
+                        alert(`Failed to load Mega Mewtwo ${formLabel} data.`);
+                        return;
+                      }
+                    }
+                  }
+
+                  else if (
                     basePokemon.rawName === "meowth" &&
                     regionalFormActive[basePokemon.id] === "galar" &&
                     regionalForms["meowth_galar"]
                   ) {
+                    const formData = regionalForms["meowth_galar"];
                     try {
-                      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${regionalForms["meowth_galar"].pokedexId}`);
+                      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${formData.pokedexId}`);
                       if (!res.ok) {
-                        alert("Regional form data not found in PokéAPI.");
+                        alert("Galarian Meowth data not found in PokéAPI.");
                         return;
                       }
                       const data = await res.json();
@@ -698,7 +1172,7 @@ export default function HomePage() {
                         weight: data.weight,
                       };
                     } catch (e) {
-                      alert("Failed to load regional form data.");
+                      alert("Failed to load Galarian Meowth data.");
                       return;
                     }
                   } else if (
@@ -706,10 +1180,11 @@ export default function HomePage() {
                     regionalFormActive[basePokemon.id] === "alola" &&
                     regionalForms["meowth"]
                   ) {
+                    const formData = regionalForms["meowth"];
                     try {
-                      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${regionalForms["meowth"].pokedexId}`);
+                      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${formData.pokedexId}`);
                       if (!res.ok) {
-                        alert("Regional form data not found in PokéAPI.");
+                        alert("Alolan Meowth data not found in PokéAPI.");
                         return;
                       }
                       const data = await res.json();
@@ -744,14 +1219,14 @@ export default function HomePage() {
                         weight: data.weight,
                       };
                     } catch (e) {
-                      alert("Failed to load regional form data.");
+                      alert("Failed to load Alolan Meowth data.");
                       return;
                     }
                   } else if (isRegionalActive && regionalFormData) {
                     try {
                       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${regionalFormData.pokedexId}`);
                       if (!res.ok) {
-                        alert("Regional form data not found in PokéAPI.");
+                        alert(`${regionalFormData.formName} data not found in PokéAPI.`);
                         return;
                       }
                       const data = await res.json();
@@ -786,12 +1261,12 @@ export default function HomePage() {
                         weight: data.weight,
                       };
                     } catch (e) {
-                      alert("Failed to load regional form data.");
+                      alert(`Failed to load ${regionalFormData.formName} data.`);
                       return;
                     }
                   }
 
-                  // Handle minimized/active logic...
+                  // Open the info panel as before
                   if (
                     tabsRef.current &&
                     tabsRef.current.activeTabId === pokemonToOpen.id

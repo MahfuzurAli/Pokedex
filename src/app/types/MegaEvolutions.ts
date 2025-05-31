@@ -91,6 +91,12 @@ export const megaEvolutions: Record<string, {
         basePokedexId: 150,
         types: ["psychic", "fighting"],
     },
+    mewtwoY: {
+        formName: "Mega Y",
+        pokedexId: 10044,
+        basePokedexId: 150,
+        types: ["psychic"],
+    },
 
     // Johto
     ampharos: {
