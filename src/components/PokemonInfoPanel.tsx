@@ -5,26 +5,26 @@ import { EvolutionNode } from "@/app/types/EvolutionNode";
 import PokemonTabs from "./PokemonTabs";
 
 const typeColors: Record<string, string> = {
-  normal: "bg-[#828282]",
-  fire: "bg-[#e4613e]",
-  water: "bg-[#3099e1]",
-  electric: "bg-[#dfbc28]",
-  grass: "bg-[#439837]",
-  ice: "bg-[#47c8c8]",
-  fighting: "bg-[#e49021]",
-  poison: "bg-[#9354cb]",
-  ground: "bg-[#a4733c]",
-  flying: "bg-[#74aad0]",
-  psychic: "bg-[#e96c8c]",
-  bug: "bg-[#9f9f28]",
-  rock: "bg-[#a9a481]",
-  ghost: "bg-[#6f4570]",
-  dragon: "bg-[#576fbc]",
-  dark: "bg-[#4f4747]",
-  steel: "bg-[#74b0cb]",
-  fairy: "bg-[#e18ce1]",
-  stellar: "bg-gradient-to-r from-purple-400 to-blue-400",
-  unknown: "bg-gray-600",
+    normal: "bg-[#828282]",
+    fire: "bg-[#e4613e]",
+    water: "bg-[#3099e1]",
+    electric: "bg-[#dfbc28]",
+    grass: "bg-[#439837]",
+    ice: "bg-[#47c8c8]",
+    fighting: "bg-[#e49021]",
+    poison: "bg-[#9354cb]",
+    ground: "bg-[#a4733c]",
+    flying: "bg-[#74aad0]",
+    psychic: "bg-[#e96c8c]",
+    bug: "bg-[#9f9f28]",
+    rock: "bg-[#a9a481]",
+    ghost: "bg-[#6f4570]",
+    dragon: "bg-[#576fbc]",
+    dark: "bg-[#4f4747]",
+    steel: "bg-[#74b0cb]",
+    fairy: "bg-[#e18ce1]",
+    stellar: "bg-gradient-to-r from-purple-400 to-blue-400",
+    unknown: "bg-gray-600",
 };
 
 interface Props {
@@ -38,6 +38,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
     const [selectedArtwork, setSelectedArtwork] = useState<"official" | "home" | "sprite">("home");
     const [evolutionChainTree, setEvolutionChainTree] = useState<EvolutionNode | null>(null);
     const [abilitiesWithDesc, setAbilitiesWithDesc] = useState<{ name: string; description: string }[]>([]);
+    const [isShiny, setIsShiny] = useState(false);
 
     useEffect(() => {
         async function fetchEvolutionChain(pokemonId: number) {
@@ -197,9 +198,25 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
 
                     <div className="flex flex-col items-center mb-6 gap-4">
                         <img
-                            src={selectedPokemon.images[selectedArtwork] ?? ""}
-                            alt={selectedPokemon.name}
-                            className="w-80 h-80 object-contain rounded-lg shadow-lg bg-gray-50"
+                            src={
+                                selectedPokemon
+                                    ? selectedArtwork === "official"
+                                        ? isShiny
+                                            ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${selectedPokemon.id}.png`
+                                            : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${selectedPokemon.id}.png`
+                                        : selectedArtwork === "home"
+                                            ? isShiny
+                                                ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${selectedPokemon.id}.png`
+                                                : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${selectedPokemon.id}.png`
+                                            : isShiny
+                                                ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${selectedPokemon.id}.png`
+                                                : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selectedPokemon.id}.png`
+                                    : ""
+                            }
+                            alt={selectedPokemon?.name}
+                            className="w-80 h-80 object-contain rounded-lg shadow-lg bg-gray-50 cursor-pointer"
+                            onClick={() => setIsShiny((prev) => !prev)}
+                            style={{ userSelect: "none" }}
                         />
 
                         <div className="flex justify-between w-full max-w-xs">
