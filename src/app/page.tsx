@@ -10,6 +10,7 @@ import { Pokemon } from "./types/Pokemon";
 import { regionalForms } from "./types/RegionalForms";
 import PokemonTabs, { PokemonTabsHandle } from "@/components/PokemonTabs";
 import { megaEvolutions } from "./types/MegaEvolutions";
+import PokemonCard from "@/components/PokemonCard";
 
 const typeColors: Record<string, string> = {
   normal: "bg-[#828282]",
@@ -664,7 +665,7 @@ export default function HomePage() {
             }
           }
           return (
-            <li key={pokemon.id} className="bg-white rounded-lg shadow p-3 flex flex-col items-center justify-between aspect-square text-sm relative">
+            <PokemonCard key={pokemon.id} imageUrl={imageUrl} displayName={displayName}>
               {/* Shiny toggle button */}
               {(imageStyle === 'official' || imageStyle === 'home' || imageStyle === 'sprite') && (
                 <button
@@ -953,13 +954,7 @@ export default function HomePage() {
                 </button>
               )}
 
-              <img
-                src={imageUrl}
-                alt={displayName}
-                className="w-35 h-35 object-contain mb-2"
-                loading="lazy"
-              />
-
+              
               <button
                 onClick={async () => {
                   let pokemonToOpen = pokemon;
@@ -1347,7 +1342,7 @@ export default function HomePage() {
                 {displayName}
               </button>
 
-              <span className="text-s text-gray-500 text-center mt-1 italic">
+              <span className="text-s text-black text-center mt-1 italic">
                 {displayAbilities
                   .map(ability =>
                     ability
@@ -1368,7 +1363,7 @@ export default function HomePage() {
                   </span>
                 ))}
               </div>
-            </li>
+            </PokemonCard>
           );
         })}
 
