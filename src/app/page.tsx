@@ -1128,6 +1128,55 @@ export default function HomePage() {
                     }
                   }
 
+                  // --- GENERIC MEGA HANDLER ---
+                  else if (
+                    megaActive[basePokemon.id] &&
+                    megaEvolutions[basePokemon.rawName]
+                  ) {
+                    const megaData = megaEvolutions[basePokemon.rawName];
+                    try {
+                      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${megaData.pokedexId}`);
+                      if (!res.ok) {
+                        alert(`Mega ${basePokemon.name} data not found in PokéAPI.`);
+                        return;
+                      }
+                      const data = await res.json();
+                      pokemonToOpen = {
+                        id: data.id,
+                        rawName: data.name,
+                        name: `${basePokemon.name} (${megaData.formName})`,
+                        types: data.types.map((t: any) => t.type.name),
+                        abilities: data.abilities.map((a: any) => ({
+                          name: a.ability.name,
+                          description: "",
+                        })),
+                        images: {
+                          official: data.sprites.other?.['official-artwork']?.front_default ?? "",
+                          home: data.sprites.other?.['home']?.front_default ?? "",
+                          sprite: data.sprites.front_default ?? "",
+                        },
+                        stats: data.stats.map((s: any) => ({
+                          name: s.stat.name,
+                          base_stat: s.base_stat,
+                        })),
+                        moves: data.moves.flatMap((m: any) =>
+                          m.version_group_details
+                            .filter((v: any) => v.move_learn_method.name === "level-up")
+                            .map((v: any) => ({
+                              name: m.move.name,
+                              move_learn_method: v.move_learn_method.name,
+                              level_learned_at: v.level_learned_at,
+                            }))
+                        ),
+                        height: data.height,
+                        weight: data.weight,
+                      };
+                    } catch (e) {
+                      alert(`Failed to load Mega ${basePokemon.name} data.`);
+                      return;
+                    }
+                  }
+
                   else if (
                     basePokemon.rawName === "meowth" &&
                     regionalFormActive[basePokemon.id] === "galar" &&
