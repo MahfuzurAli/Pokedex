@@ -182,7 +182,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
             {selectedPokemon && (
                 <>
                     <h2 className={`text-3xl font-bold mb-2 text-center capitalize ${darkMode ? "text-white" : "text-black"}`}>
-                        {selectedPokemon.name}
+                        {selectedPokemon.name} <span className="text-lg font-normal text-gray-400">#{selectedPokemon.id.toString().padStart(3, "0")}</span>
                     </h2>
 
                     {/* Types badges under name */}
