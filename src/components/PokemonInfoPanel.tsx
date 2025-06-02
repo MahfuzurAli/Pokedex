@@ -40,6 +40,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
     const [evolutionChainTree, setEvolutionChainTree] = useState<EvolutionNode | null>(null);
     const [abilitiesWithDesc, setAbilitiesWithDesc] = useState<{ name: string; description: string }[]>([]);
     const [isShiny, setIsShiny] = useState(false);
+    const [description, setDescription] = useState<string>("");
 
     useEffect(() => {
         async function fetchEvolutionChain(pokemonId: number) {
@@ -57,7 +58,6 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                 setEvolutionChainTree(null);
             }
         }
-
 
         async function fetchAbilitiesDescriptions() {
             // Clear abilities before fetching new ones
@@ -90,13 +90,26 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
 
             setAbilitiesWithDesc(abilitiesDetailed);
         }
-
+        async function fetchDescription(pokemonId: number) {
+            try {
+                const res = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`);
+                const data = await res.json();
+                const entry = data.flavor_text_entries.find(
+                    (e: any) => e.language.name === "en"
+                );
+                setDescription(entry ? entry.flavor_text.replace(/\f/g, " ") : "No description available.");
+            } catch {
+                setDescription("No description available.");
+            }
+        }
         if (selectedPokemon) {
             fetchEvolutionChain(selectedPokemon.id);
             fetchAbilitiesDescriptions();
+            fetchDescription(selectedPokemon.id);
         } else {
-            setEvolutionChainTree
+            setEvolutionChainTree(null);
             setAbilitiesWithDesc([]);
+            setDescription("");
         }
     }, [selectedPokemon]);
 
@@ -261,6 +274,17 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                             {renderEvolutionTree(evolutionChainTree)}
                         </section>
                     )} */}
+
+                    {description && (
+                        <section className="mb-6">
+                            <h3 className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-black"}`}>
+                                Pokedex Entry
+                            </h3>
+                            <div className={`text-base italic ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                                {description}
+                            </div>
+                        </section>
+                    )}
 
                     {/* Abilities */}
                     <section className="mb-6">
