@@ -7,6 +7,7 @@ type SearchBarProps = {
   setSearchTerm: (value: string) => void;
   sortOption: string;
   setSortOption: (value: string) => void;
+  darkMode?: boolean; // Add darkMode prop
 };
 
 export default function SearchBar({
@@ -14,6 +15,7 @@ export default function SearchBar({
   setSearchTerm,
   sortOption,
   setSortOption,
+  darkMode = false,
 }: SearchBarProps) {
   return (
     <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:gap-4">
@@ -22,13 +24,13 @@ export default function SearchBar({
         placeholder="Search by name, number or ability..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="p-2 border rounded w-full sm:w-1/2"
+        className={`p-2 border rounded w-full sm:w-1/2 ${darkMode ? "bg-[#23272f] text-white placeholder-white border-gray-600" : ""}`}
       />
 
       <select
         value={sortOption}
         onChange={(e) => setSortOption(e.target.value)}
-        className="mt-2 sm:mt-0 p-2 border rounded w-full sm:w-auto text-sm"
+        className={`mt-2 sm:mt-0 p-2 border rounded w-full sm:w-auto text-sm ${darkMode ? "bg-[#23272f] text-white border-gray-600" : ""}`}
       >
         <option value="number-asc">Sort by Number (1-1025)</option>
         <option value="number-desc">Sort by Number (1025-1)</option>

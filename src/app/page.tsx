@@ -47,12 +47,24 @@ export default function HomePage() {
   const [imageStyle, setImageStyle] = useState<'official' | 'home' | 'sprite'>('home');
   const [sortOption, setSortOption] = useState("number-asc");
   const [shinyActive, setShinyActive] = useState<Record<number, boolean>>({});
-  const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
   const [regionalFormActive, setRegionalFormActive] = useState<{ [pokemonId: number]: string | null }>({});
   const [regionalAbilities, setRegionalAbilities] = useState<Record<number, string[]>>({});
   const tabsRef = useRef<PokemonTabsHandle>(null);
   const [megaActive, setMegaActive] = useState<{ [pokemonId: number]: boolean }>({});
   const [megaFormActive, setMegaFormActive] = useState<{ [pokemonId: number]: string | null }>({});
+  const [darkMode, setDarkMode] = useState(false);
+  // Generation ID Ranges
+  const genRanges: Record<string, [number, number]> = {
+    Kanto: [1, 151],
+    Johto: [152, 251],
+    Hoenn: [252, 386],
+    Sinnoh: [387, 493],
+    Unova: [494, 649],
+    Kalos: [650, 721],
+    Alola: [722, 809],
+    Galar: [810, 898],
+    Paldea: [899, 1025],
+  };
 
 
   function toggleShiny(id: number) {
@@ -169,18 +181,17 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [megaFormActive, pokemonList]);
 
-  // Generation ID Ranges
-  const genRanges: Record<string, [number, number]> = {
-    Kanto: [1, 151],
-    Johto: [152, 251],
-    Hoenn: [252, 386],
-    Sinnoh: [387, 493],
-    Unova: [494, 649],
-    Kalos: [650, 721],
-    Alola: [722, 809],
-    Galar: [810, 898],
-    Paldea: [899, 1025],
-  };
+  // Load dark mode preference from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("pokedex-dark-mode");
+    if (saved === "true") setDarkMode(true);
+    if (saved === "false") setDarkMode(false);
+  }, []);
+  // Save dark mode preference to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem("pokedex-dark-mode", darkMode ? "true" : "false");
+  }, [darkMode]);
+
 
   // Filter Pokémon based on search, type, and generation filters
   function normalizeString(str: string) {
@@ -237,8 +248,17 @@ export default function HomePage() {
   const generations = Object.keys(genRanges);
 
   return (
-    <main className="p-4">
-      <h1 className="text-3xl font-bold mb-4">Pokédex</h1>
+    <main className={`p-4 min-h-screen transition-colors duration-300 ${darkMode ? "bg-[#23272f]" : "bg-white"}`}>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className={`text-3xl font-bold ${darkMode ? "text-white" : "text-black"}`}>Pokédex</h1>
+        <button
+          onClick={() => setDarkMode(d => !d)}
+          className="px-3 py-1 rounded-full border border-gray-400 bg-gray-200 dark:bg-[#23272f] dark:text-white text-black transition"
+          aria-label="Toggle dark mode"
+        >
+          {darkMode ? "Light Mode" : "Dark Mode"}
+        </button>
+      </div>
 
       {/* Search Bar + Sort Dropdown */}
       <SearchBar
@@ -246,6 +266,7 @@ export default function HomePage() {
         setSearchTerm={setSearchTerm}
         sortOption={sortOption}
         setSortOption={setSortOption}
+        darkMode={darkMode}
       />
 
 
@@ -954,7 +975,7 @@ export default function HomePage() {
                 </button>
               )}
 
-              
+
               <button
                 onClick={async () => {
                   let pokemonToOpen = pokemon;
