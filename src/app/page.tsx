@@ -1394,7 +1394,7 @@ export default function HomePage() {
         <p className="text-center mt-8 text-gray-600">No Pokémon found.</p>
       )}
 
-      <PokemonTabs ref={tabsRef} />
+      <PokemonTabs ref={tabsRef} darkMode={darkMode} />
 
     </main>
   );

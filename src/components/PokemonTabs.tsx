@@ -10,9 +10,11 @@ export interface PokemonTabsHandle {
     isMinimized: () => boolean;
 }
 
-interface PokemonTabsProps { }
+interface PokemonTabsProps {
+    darkMode: boolean;
+}
 
-const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>((props, ref) => {
+const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>(({ darkMode }, ref) => {
     const [tabs, setTabs] = useState<Pokemon[]>([]);
     const [activeTabId, setActiveTabId] = useState<number | null>(null);
     const [minimized, setMinimized] = useState(false);
@@ -115,6 +117,7 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>((props, ref)
                         setSelectedPokemon={() => activePokemon && closeTab(activePokemon.id)}
                         showMinimize
                         onMinimize={minimizePanel}
+                        darkMode={darkMode}
                     />
                 )}
             </div>

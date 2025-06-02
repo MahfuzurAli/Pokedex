@@ -32,9 +32,10 @@ interface Props {
     setSelectedPokemon: (pokemon: Pokemon | null) => void;
     showMinimize?: boolean;
     onMinimize?: () => void;
+    darkMode?: boolean;
 }
 
-export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, showMinimize, onMinimize }: Props) {
+export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, showMinimize, onMinimize, darkMode = false }: Props) {
     const [selectedArtwork, setSelectedArtwork] = useState<"official" | "home" | "sprite">("home");
     const [evolutionChainTree, setEvolutionChainTree] = useState<EvolutionNode | null>(null);
     const [abilitiesWithDesc, setAbilitiesWithDesc] = useState<{ name: string; description: string }[]>([]);
@@ -150,11 +151,12 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
     return (
         <div
             className={`
-        fixed top-0 right-0 h-full w-130 bg-white shadow-2xl p-6
-        z-50 flex flex-col overflow-y-auto
-        transform transition-transform duration-300 ease-in-out
-        ${selectedPokemon ? "translate-x-0" : "translate-x-full"}
-      `}
+                fixed top-0 right-0 h-full w-130 shadow-2xl p-6
+                z-50 flex flex-col overflow-y-auto
+                transform transition-transform duration-300 ease-in-out
+                ${selectedPokemon ? "translate-x-0" : "translate-x-full"}
+                ${darkMode ? "bg-[#23272f] text-white" : "bg-white text-black"}
+              `}
         >
             <div className="flex items-center justify-end mb-6 gap-2">
                 {showMinimize && onMinimize && (
@@ -179,7 +181,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
 
             {selectedPokemon && (
                 <>
-                    <h2 className="text-3xl font-bold mb-2 text-center capitalize text-black">
+                    <h2 className={`text-3xl font-bold mb-2 text-center capitalize ${darkMode ? "text-white" : "text-black"}`}>
                         {selectedPokemon.name}
                     </h2>
 
@@ -253,18 +255,16 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                     </div>
 
                     {/* Evolution Line */}
-                    {evolutionChainTree && (
+                    {/* {evolutionChainTree && (
                         <section className="mb-6 flex flex-col items-center">
                             <h3 className="text-xl font-semibold mb-3 text-black">Evolution Line</h3>
                             {renderEvolutionTree(evolutionChainTree)}
                         </section>
-                    )}
-
-
+                    )} */}
 
                     {/* Abilities */}
                     <section className="mb-6">
-                        <h3 className="text-xl font-semibold mb-2 text-black">Abilities</h3>
+                        <h3 className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-black"}`}>Abilities</h3>
                         <ul className="flex flex-col gap-2">
                             {abilitiesWithDesc.length > 0 ? (
                                 abilitiesWithDesc.map((ability) => (
@@ -284,7 +284,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
 
                     {/* Base Stats */}
                     <section className="mb-6">
-                        <h3 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-3 text-black">
+                        <h3 className={`text-xl font-semibold border-b border-gray-300 pb-1 mb-3 ${darkMode ? "text-white" : "text-black"}`}>
                             Base Stats
                         </h3>
                         <ul className="space-y-2 max-w-md">
@@ -314,7 +314,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
 
                     {/* Moves */}
                     <section>
-                        <h3 className="text-xl font-semibold border-b border-gray-300 pb-1 mb-4 text-black">
+                        <h3 className={`text-xl font-semibold border-b border-gray-300 pb-1 mb-4 ${darkMode ? "text-white" : "text-black"}`}>
                             Moves (Level-up)
                         </h3>
                         <ul className="max-h-48 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-900">
