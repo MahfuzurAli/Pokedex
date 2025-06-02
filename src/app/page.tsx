@@ -980,7 +980,7 @@ export default function HomePage() {
                 onClick={async () => {
                   let pokemonToOpen = pokemon;
 
-                  // --- MEGA SLOWBRO ---
+                  // --- MEGA SLOWBRO HANDLER ---
                   if (
                     basePokemon.rawName === "slowbro" &&
                     megaActive[basePokemon.id] &&
@@ -1023,6 +1023,7 @@ export default function HomePage() {
                         ),
                         height: data.height,
                         weight: data.weight,
+                        baseSpeciesId: basePokemon.id,
                       };
                     } catch (e) {
                       alert("Failed to load Mega Slowbro data.");
@@ -1030,7 +1031,7 @@ export default function HomePage() {
                     }
                   }
 
-                  // --- MEGA CHARIZARD X/Y ---
+                  // --- MEGA CHARIZARD X/Y HANDLER ---
                   else if (
                     basePokemon.rawName === "charizard" &&
                     megaFormActive[basePokemon.id] &&
@@ -1076,6 +1077,7 @@ export default function HomePage() {
                           ),
                           height: data.height,
                           weight: data.weight,
+                          baseSpeciesId: basePokemon.id,
                         };
                       } catch (e) {
                         alert(`Failed to load Mega Charizard ${formLabel} data.`);
@@ -1084,7 +1086,7 @@ export default function HomePage() {
                     }
                   }
 
-                  // --- MEGA MEWTWO X/Y ---
+                  // --- MEGA MEWTWO X/Y HANDLER ---
                   else if (
                     basePokemon.rawName === "mewtwo" &&
                     megaFormActive[basePokemon.id] &&
@@ -1136,6 +1138,7 @@ export default function HomePage() {
                           ),
                           height: data.height,
                           weight: data.weight,
+                          baseSpeciesId: basePokemon.id,
                         };
                       } catch (e) {
                         alert(`Failed to load Mega Mewtwo ${formLabel} data.`);
@@ -1186,6 +1189,7 @@ export default function HomePage() {
                         ),
                         height: data.height,
                         weight: data.weight,
+                        baseSpeciesId: basePokemon.id,
                       };
                     } catch (e) {
                       alert(`Failed to load Mega ${basePokemon.name} data.`);
@@ -1193,6 +1197,8 @@ export default function HomePage() {
                     }
                   }
 
+
+                  // --- GALARIAN MEOWTH HANDLER ---
                   else if (
                     basePokemon.rawName === "meowth" &&
                     regionalFormActive[basePokemon.id] === "galar" &&
@@ -1235,11 +1241,14 @@ export default function HomePage() {
                         ),
                         height: data.height,
                         weight: data.weight,
+                        baseSpeciesId: basePokemon.id,
                       };
                     } catch (e) {
                       alert("Failed to load Galarian Meowth data.");
                       return;
                     }
+
+                  // --- ALOLAN MEOWTH HANDLER ---
                   } else if (
                     basePokemon.rawName === "meowth" &&
                     regionalFormActive[basePokemon.id] === "alola" &&
@@ -1287,6 +1296,8 @@ export default function HomePage() {
                       alert("Failed to load Alolan Meowth data.");
                       return;
                     }
+
+                  // --- GENERIC REGIONAL FORM HANDLER ---
                   } else if (isRegionalActive && regionalFormData) {
                     try {
                       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${regionalFormData.pokedexId}`);
@@ -1324,6 +1335,7 @@ export default function HomePage() {
                         ),
                         height: data.height,
                         weight: data.weight,
+                        baseSpeciesId: basePokemon.id,
                       };
                     } catch (e) {
                       alert(`Failed to load ${regionalFormData.formName} data.`);

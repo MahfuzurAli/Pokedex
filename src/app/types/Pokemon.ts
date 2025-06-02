@@ -23,4 +23,5 @@ export type Pokemon = {
     level_learned_at: number;
     move_learn_method: string;
   }[];
+  baseSpeciesId?: number; // <-- Add this line
 };

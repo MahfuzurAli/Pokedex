@@ -94,10 +94,20 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
             try {
                 const res = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`);
                 const data = await res.json();
-                const entry = data.flavor_text_entries.find(
-                    (e: any) => e.language.name === "en"
+                // Try to get Scarlet or Violet entry first (Gen 9)
+                const gen9Entry = data.flavor_text_entries.find(
+                    (e: any) =>
+                        e.language.name === "en" &&
+                        (e.version.name === "scarlet" || e.version.name === "violet")
                 );
-                setDescription(entry ? entry.flavor_text.replace(/\f/g, " ") : "No description available.");
+                // Fallback to any English entry if Gen 9 not found
+                const entry = gen9Entry ||
+                    data.flavor_text_entries.find((e: any) => e.language.name === "en");
+                setDescription(
+                    entry
+                        ? entry.flavor_text.replace(/\f/g, " ").replace(/POKéMON/g, "Pokémon")
+                        : "No description available."
+                );
             } catch {
                 setDescription("No description available.");
             }
@@ -105,7 +115,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
         if (selectedPokemon) {
             fetchEvolutionChain(selectedPokemon.id);
             fetchAbilitiesDescriptions();
-            fetchDescription(selectedPokemon.id);
+            fetchDescription((selectedPokemon as any).baseSpeciesId || selectedPokemon.id);
         } else {
             setEvolutionChainTree(null);
             setAbilitiesWithDesc([]);
