@@ -4,6 +4,7 @@ import { Evolution } from "@/app/types/Evolution";
 import { EvolutionNode } from "@/app/types/EvolutionNode";
 import PokemonTabs from "./PokemonTabs";
 import ImageStyleSelector from "./ImageStyleSelector";
+import { FastAverageColor } from "fast-average-color";
 
 const typeColors: Record<string, string> = {
     normal: "bg-[#828282]",
@@ -42,6 +43,19 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
     const [abilitiesWithDesc, setAbilitiesWithDesc] = useState<{ name: string; description: string }[]>([]);
     const [isShiny, setIsShiny] = useState(false);
     const [description, setDescription] = useState<string>("");
+    const [bgColor, setBgColor] = useState<string>("#fff");
+
+    // Extract average color when image loads
+    const imgRef = React.useRef<HTMLImageElement>(null);
+    const extractColor = () => {
+        const fac = new FastAverageColor();
+        const img = imgRef.current;
+        if (img) {
+            fac.getColorAsync(img)
+                .then(color => setBgColor(color.hex))
+                .catch(() => setBgColor("#fff"));
+        }
+    };
 
     useEffect(() => {
         async function fetchEvolutionChain(pokemonId: number) {
@@ -222,29 +236,42 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                         ))}
                     </div>
 
-                    <div className="flex flex-col items-center mb-6 gap-4">
-                        <img
-                            src={
-                                selectedPokemon
-                                    ? selectedArtwork === "official"
-                                        ? isShiny
-                                            ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${selectedPokemon.id}.png`
-                                            : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${selectedPokemon.id}.png`
-                                        : selectedArtwork === "home"
-                                            ? isShiny
-                                                ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${selectedPokemon.id}.png`
-                                                : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${selectedPokemon.id}.png`
-                                            : isShiny
-                                                ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${selectedPokemon.id}.png`
-                                                : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selectedPokemon.id}.png`
-                                    : ""
-                            }
-                            alt={selectedPokemon?.name}
-                            className="w-80 h-80 object-contain rounded-lg shadow-lg bg-gray-50 cursor-pointer"
+                    <div className="flex flex-col items-center mb-6">
+                        <div
+                            className="w-80 h-80 rounded-lg shadow-lg flex items-center justify-center cursor-pointer"
+                            style={{
+                                background: `linear-gradient(0deg, ${bgColor}00 0%, ${bgColor} 80%)`,
+                                transition: "background 0.5s",
+                            }}
                             onClick={() => setIsShiny((prev) => !prev)}
-                            style={{ userSelect: "none" }}
-                        />
-                        <ImageStyleSelector imageStyle={selectedArtwork} setImageStyle={setSelectedArtwork} />
+                        >
+                            <img
+                                ref={imgRef}
+                                src={
+                                    selectedPokemon
+                                        ? selectedArtwork === "official"
+                                            ? isShiny
+                                                ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${selectedPokemon.id}.png`
+                                                : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${selectedPokemon.id}.png`
+                                            : selectedArtwork === "home"
+                                                ? isShiny
+                                                    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${selectedPokemon.id}.png`
+                                                    : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${selectedPokemon.id}.png`
+                                                : isShiny
+                                                    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${selectedPokemon.id}.png`
+                                                    : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selectedPokemon.id}.png`
+                                        : ""
+                                }
+                                alt={selectedPokemon?.name}
+                                className="w-80 h-80 object-contain"
+                                style={{ userSelect: "none", background: "transparent" }}
+                                onLoad={extractColor}
+                                crossOrigin="anonymous"
+                            />
+                        </div>
+                        <div className="mt-3">
+                            <ImageStyleSelector imageStyle={selectedArtwork} setImageStyle={setSelectedArtwork} />
+                        </div>
                     </div>
 
                     {/* Evolution Line */}
