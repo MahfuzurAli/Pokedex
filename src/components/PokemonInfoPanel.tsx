@@ -3,6 +3,7 @@ import { Pokemon } from "@/app/types/Pokemon";
 import { Evolution } from "@/app/types/Evolution";
 import { EvolutionNode } from "@/app/types/EvolutionNode";
 import PokemonTabs from "./PokemonTabs";
+import ImageStyleSelector from "./ImageStyleSelector";
 
 const typeColors: Record<string, string> = {
     normal: "bg-[#828282]",
@@ -243,38 +244,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                             onClick={() => setIsShiny((prev) => !prev)}
                             style={{ userSelect: "none" }}
                         />
-
-                        <div className="flex justify-between w-full max-w-xs">
-                            {(["official", "home", "sprite"] as const).map((artwork) => (
-                                <button
-                                    key={artwork}
-                                    onClick={() => setSelectedArtwork(artwork)}
-                                    className={`
-        p-1 rounded
-        bg-transparent
-        ${selectedArtwork === artwork ? 'ring-2 ring-indigo-500' : ''}
-        transition
-        hover:ring-2 hover:ring-indigo-300
-      `}
-                                    title={
-                                        artwork === "official"
-                                            ? "Official Artwork"
-                                            : artwork === "home"
-                                                ? "Home Artwork"
-                                                : "Sprite Artwork"
-                                    }
-                                    type="button"
-                                >
-                                    <img
-                                        src={`/artwork/${artwork}-artwork.png`}
-                                        alt={`${artwork} artwork`}
-                                        className="w-8 h-8 object-contain"
-                                        draggable={false}
-                                        style={{ background: "transparent" }}
-                                    />
-                                </button>
-                            ))}
-                        </div>
+                        <ImageStyleSelector imageStyle={selectedArtwork} setImageStyle={setSelectedArtwork} />
                     </div>
 
                     {/* Evolution Line */}
