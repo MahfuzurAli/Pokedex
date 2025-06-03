@@ -44,7 +44,7 @@ export default function HomePage() {
   const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [selectedGeneration, setSelectedGeneration] = useState<string | null>(null);
+  const [selectedGeneration, setSelectedGeneration] = useState<string>("Kanto");
   const [imageStyle, setImageStyle] = useState<'official' | 'home' | 'sprite'>('home');
   const [sortOption, setSortOption] = useState("number-asc");
   const [shinyActive, setShinyActive] = useState<Record<number, boolean>>({});
@@ -328,7 +328,7 @@ export default function HomePage() {
 
         {selectedGeneration && (
           <button
-            onClick={() => setSelectedGeneration(null)}
+            onClick={() => setSelectedGeneration("Kanto")}
             className="text-xs px-3 py-1 rounded-full font-semibold capitalize bg-gray-300 text-black border-2 border-transparent h-8"
           >
             Clear Filter
