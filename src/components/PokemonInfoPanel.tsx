@@ -204,7 +204,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                         aria-label="Minimize info panel"
                         type="button"
                     >
-                        <span style={{ fontSize: "1.5em", lineHeight: 1 }}>_</span>
+                        <span style={{ fontSize: "1.5em", lineHeight: 1 }}>–</span>
                     </button>
                 )}
                 <button
@@ -220,7 +220,16 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
             {selectedPokemon && (
                 <>
                     <h2 className={`text-3xl font-bold mb-2 text-center capitalize ${darkMode ? "text-white" : "text-black"}`}>
-                        {selectedPokemon.name} <span className="text-lg font-normal text-gray-400">#{selectedPokemon.id.toString().padStart(3, "0")}</span>
+                        {selectedPokemon.name}{" "}
+                        <span className="text-lg font-normal text-gray-400">
+                            #
+                            {
+                                // Prefer basePokedexId for regional forms if it exists, else fallback to id
+                                (selectedPokemon as any).basePokedexId
+                                    ? (selectedPokemon as any).basePokedexId.toString().padStart(3, "0")
+                                    : selectedPokemon.id.toString().padStart(3, "0")
+                            }
+                        </span>
                     </h2>
 
                     {/* Types badges under name */}

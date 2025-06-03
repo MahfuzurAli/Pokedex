@@ -947,10 +947,10 @@ export default function HomePage() {
               )}
 
 
-              <button
+                           <button
                 onClick={async () => {
                   let pokemonToOpen = pokemon;
-
+              
                   // --- MEGA SLOWBRO HANDLER ---
                   if (
                     basePokemon.rawName === "slowbro" &&
@@ -995,13 +995,14 @@ export default function HomePage() {
                         height: data.height,
                         weight: data.weight,
                         baseSpeciesId: basePokemon.id,
+                        basePokedexId: basePokemon.id,
                       };
                     } catch (e) {
                       alert("Failed to load Mega Slowbro data.");
                       return;
                     }
                   }
-
+              
                   // --- MEGA CHARIZARD X/Y HANDLER ---
                   else if (
                     basePokemon.rawName === "charizard" &&
@@ -1049,6 +1050,7 @@ export default function HomePage() {
                           height: data.height,
                           weight: data.weight,
                           baseSpeciesId: basePokemon.id,
+                          basePokedexId: basePokemon.id,
                         };
                       } catch (e) {
                         alert(`Failed to load Mega Charizard ${formLabel} data.`);
@@ -1056,7 +1058,7 @@ export default function HomePage() {
                       }
                     }
                   }
-
+              
                   // --- MEGA MEWTWO X/Y HANDLER ---
                   else if (
                     basePokemon.rawName === "mewtwo" &&
@@ -1066,12 +1068,12 @@ export default function HomePage() {
                     let formKey = megaFormActive[basePokemon.id] === "x" ? "mewtwo" : "mewtwoY";
                     let formLabel = megaFormActive[basePokemon.id] === "x" ? "Mega X" : "Mega Y";
                     let megaData = megaEvolutions[formKey];
-
+              
                     // fallback for Mega Y if not present in megaEvolutions
                     if (megaFormActive[basePokemon.id] === "y" && !megaData && megaEvolutions["mewtwo"]) {
                       megaData = { ...megaEvolutions["mewtwo"], pokedexId: megaEvolutions["mewtwo"].pokedexId + 1 };
                     }
-
+              
                     if (megaData) {
                       try {
                         const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${megaData.pokedexId}`);
@@ -1110,6 +1112,7 @@ export default function HomePage() {
                           height: data.height,
                           weight: data.weight,
                           baseSpeciesId: basePokemon.id,
+                          basePokedexId: basePokemon.id,
                         };
                       } catch (e) {
                         alert(`Failed to load Mega Mewtwo ${formLabel} data.`);
@@ -1117,7 +1120,7 @@ export default function HomePage() {
                       }
                     }
                   }
-
+              
                   // --- GENERIC MEGA HANDLER ---
                   else if (
                     megaActive[basePokemon.id] &&
@@ -1161,14 +1164,14 @@ export default function HomePage() {
                         height: data.height,
                         weight: data.weight,
                         baseSpeciesId: basePokemon.id,
+                        basePokedexId: basePokemon.id,
                       };
                     } catch (e) {
                       alert(`Failed to load Mega ${basePokemon.name} data.`);
                       return;
                     }
                   }
-
-
+              
                   // --- GALARIAN MEOWTH HANDLER ---
                   else if (
                     basePokemon.rawName === "meowth" &&
@@ -1213,13 +1216,14 @@ export default function HomePage() {
                         height: data.height,
                         weight: data.weight,
                         baseSpeciesId: basePokemon.id,
+                        basePokedexId: formData.basePokedexId,
                       };
                     } catch (e) {
                       alert("Failed to load Galarian Meowth data.");
                       return;
                     }
-
-                    // --- ALOLAN MEOWTH HANDLER ---
+              
+                  // --- ALOLAN MEOWTH HANDLER ---
                   } else if (
                     basePokemon.rawName === "meowth" &&
                     regionalFormActive[basePokemon.id] === "alola" &&
@@ -1262,13 +1266,14 @@ export default function HomePage() {
                         ),
                         height: data.height,
                         weight: data.weight,
+                        basePokedexId: formData.basePokedexId,
                       };
                     } catch (e) {
                       alert("Failed to load Alolan Meowth data.");
                       return;
                     }
-
-                    // --- GENERIC REGIONAL FORM HANDLER ---
+              
+                  // --- GENERIC REGIONAL FORM HANDLER ---
                   } else if (isRegionalActive && regionalFormData) {
                     try {
                       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${regionalFormData.pokedexId}`);
@@ -1307,13 +1312,14 @@ export default function HomePage() {
                         height: data.height,
                         weight: data.weight,
                         baseSpeciesId: basePokemon.id,
+                        basePokedexId: regionalFormData.basePokedexId,
                       };
                     } catch (e) {
                       alert(`Failed to load ${regionalFormData.formName} data.`);
                       return;
                     }
                   }
-
+              
                   // Open the info panel as before
                   if (
                     tabsRef.current &&

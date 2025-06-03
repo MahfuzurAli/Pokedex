@@ -12,8 +12,8 @@ export type Pokemon = {
     name: string;
     description: string;
   }[];
-  height: number; // decimeters
-  weight: number; // hectograms
+  height: number;
+  weight: number;
   stats: {
     name: string;
     base_stat: number;
@@ -23,5 +23,6 @@ export type Pokemon = {
     level_learned_at: number;
     move_learn_method: string;
   }[];
-  baseSpeciesId?: number; // <-- Add this line
+  baseSpeciesId?: number;
+  basePokedexId?: number;
 };
