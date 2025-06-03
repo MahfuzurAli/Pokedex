@@ -36,7 +36,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
         <li
             className="rounded-lg shadow p-3 flex flex-col items-center justify-between aspect-square text-sm relative"
             style={{
-                background: `linear-gradient(0deg, rgba(255,255,255,0.10), rgba(${parseInt(bgColor.slice(1, 3), 16)},${parseInt(bgColor.slice(3, 5), 16)},${parseInt(bgColor.slice(5, 7), 16)},0.9))`,
+                background: `linear-gradient(0deg, rgba(255,255,255,0.10), rgba(${parseInt(bgColor.slice(1, 3), 16)},${parseInt(bgColor.slice(3, 5), 16)},${parseInt(bgColor.slice(5, 7), 16)},1))`,
                 transition: "background 0.5s",
             }}
         >

@@ -662,23 +662,22 @@ export default function HomePage() {
               {(imageStyle === 'official' || imageStyle === 'home' || imageStyle === 'sprite') && (
                 <button
                   onClick={() => toggleShiny(pokemon.id)}
-                  className="absolute top-2 left-2 w-6 h-6 text-yellow-400 hover:text-yellow-300"
+                  className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center"
                   title="Toggle Shiny"
                   aria-label={`Toggle shiny for ${basePokemon.name}`}
                   type="button"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    stroke="currentColor"
-                    strokeWidth="1"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={`w-4 h-4 ${isShiny ? 'text-yellow-400' : 'text-gray-400'}`}
-                  >
-                    <polygon points="12 2 15 9 22 9 16.5 13.5 18.5 21 12 16.5 5.5 21 7.5 13.5 2 9 9 9 12 2" />
-                  </svg>
+                  <img
+                    src="/artwork/shiny-sparkle.png"
+                    alt="Shiny"
+                    className={`w-5 h-5 transition duration-200 select-none`}
+                    style={{
+                      filter: isShiny
+                        ? "sepia(1) saturate(10) hue-rotate(10deg) brightness(2.5) drop-shadow(0 0 12px #fff700) drop-shadow(0 0 24px #fff700)"
+                        : "grayscale(1) brightness(0)",
+                    }}
+                    draggable={false}
+                  />
                 </button>
               )}
 
@@ -947,10 +946,10 @@ export default function HomePage() {
               )}
 
 
-                           <button
+              <button
                 onClick={async () => {
                   let pokemonToOpen = pokemon;
-              
+
                   // --- MEGA SLOWBRO HANDLER ---
                   if (
                     basePokemon.rawName === "slowbro" &&
@@ -1002,7 +1001,7 @@ export default function HomePage() {
                       return;
                     }
                   }
-              
+
                   // --- MEGA CHARIZARD X/Y HANDLER ---
                   else if (
                     basePokemon.rawName === "charizard" &&
@@ -1058,7 +1057,7 @@ export default function HomePage() {
                       }
                     }
                   }
-              
+
                   // --- MEGA MEWTWO X/Y HANDLER ---
                   else if (
                     basePokemon.rawName === "mewtwo" &&
@@ -1068,12 +1067,12 @@ export default function HomePage() {
                     let formKey = megaFormActive[basePokemon.id] === "x" ? "mewtwo" : "mewtwoY";
                     let formLabel = megaFormActive[basePokemon.id] === "x" ? "Mega X" : "Mega Y";
                     let megaData = megaEvolutions[formKey];
-              
+
                     // fallback for Mega Y if not present in megaEvolutions
                     if (megaFormActive[basePokemon.id] === "y" && !megaData && megaEvolutions["mewtwo"]) {
                       megaData = { ...megaEvolutions["mewtwo"], pokedexId: megaEvolutions["mewtwo"].pokedexId + 1 };
                     }
-              
+
                     if (megaData) {
                       try {
                         const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${megaData.pokedexId}`);
@@ -1120,7 +1119,7 @@ export default function HomePage() {
                       }
                     }
                   }
-              
+
                   // --- GENERIC MEGA HANDLER ---
                   else if (
                     megaActive[basePokemon.id] &&
@@ -1171,7 +1170,7 @@ export default function HomePage() {
                       return;
                     }
                   }
-              
+
                   // --- GALARIAN MEOWTH HANDLER ---
                   else if (
                     basePokemon.rawName === "meowth" &&
@@ -1222,8 +1221,8 @@ export default function HomePage() {
                       alert("Failed to load Galarian Meowth data.");
                       return;
                     }
-              
-                  // --- ALOLAN MEOWTH HANDLER ---
+
+                    // --- ALOLAN MEOWTH HANDLER ---
                   } else if (
                     basePokemon.rawName === "meowth" &&
                     regionalFormActive[basePokemon.id] === "alola" &&
@@ -1272,8 +1271,8 @@ export default function HomePage() {
                       alert("Failed to load Alolan Meowth data.");
                       return;
                     }
-              
-                  // --- GENERIC REGIONAL FORM HANDLER ---
+
+                    // --- GENERIC REGIONAL FORM HANDLER ---
                   } else if (isRegionalActive && regionalFormData) {
                     try {
                       const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${regionalFormData.pokedexId}`);
@@ -1319,7 +1318,7 @@ export default function HomePage() {
                       return;
                     }
                   }
-              
+
                   // Open the info panel as before
                   if (
                     tabsRef.current &&
