@@ -673,7 +673,7 @@ export default function HomePage() {
                     className={`w-5 h-5 transition duration-200 select-none`}
                     style={{
                       filter: isShiny
-                        ? "sepia(1) saturate(10) hue-rotate(10deg) brightness(2.5) drop-shadow(0 0 12px #fff700) drop-shadow(0 0 24px #fff700)"
+                        ? "sepia(1) saturate(10) hue-rotate(10deg) brightness(2.5) drop-shadow(0 0 5px #fff700) drop-shadow(0 0 24px #fff700)"
                         : "grayscale(1) brightness(0)",
                     }}
                     draggable={false}

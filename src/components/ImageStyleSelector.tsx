@@ -12,12 +12,13 @@ const ImageStyleSelector: React.FC<ImageStyleSelectorProps> = ({ imageStyle, set
                 key={style}
                 onClick={() => setImageStyle(style)}
                 className={`
-          p-1 rounded
-          bg-transparent
-          ${imageStyle === style ? 'ring-2 ring-indigo-500' : ''}
-          transition
-          hover:ring-2 hover:ring-indigo-300
-        `}
+                    p-1 rounded
+                    bg-transparent
+                    border-1 border-black
+                    ${imageStyle === style ? 'ring-1 ring-black' : ''}
+                    transition
+                    hover:ring-2 hover:ring-black
+                `}
                 title={
                     style === 'official'
                         ? "Official Artwork"
