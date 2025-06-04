@@ -202,13 +202,47 @@ export default function HomePage() {
 
   const normalizedSearch = normalizeString(searchTerm);
 
+  function getDisplayTypes(pokemon: Pokemon): string[] {
+    if (pokemon.rawName === "charizard" && megaFormActive[pokemon.id] === "x" && megaEvolutions["charizard"]) {
+      return megaEvolutions["charizard"].types;
+    }
+    if (pokemon.rawName === "charizard" && megaFormActive[pokemon.id] === "y" && megaEvolutions["charizardY"]) {
+      return megaEvolutions["charizardY"].types;
+    }
+    if (pokemon.rawName === "mewtwo" && megaFormActive[pokemon.id] === "x" && megaEvolutions["mewtwo"]) {
+      return megaEvolutions["mewtwo"].types;
+    }
+    if (pokemon.rawName === "mewtwo" && megaFormActive[pokemon.id] === "y" && megaEvolutions["mewtwoY"]) {
+      return megaEvolutions["mewtwoY"].types;
+    }
+    if (pokemon.rawName === "slowbro" && megaActive[pokemon.id] && megaEvolutions["slowbro"]) {
+      return megaEvolutions["slowbro"].types;
+    }
+    if (pokemon.rawName === "slowbro" && regionalFormActive[pokemon.id] === "galar" && regionalForms["slowbro"]) {
+      return regionalForms["slowbro"].types;
+    }
+    if (megaActive[pokemon.id] && megaEvolutions[pokemon.rawName]) {
+      return megaEvolutions[pokemon.rawName].types;
+    }
+    if (pokemon.rawName === "meowth" && regionalFormActive[pokemon.id] === "alola" && regionalForms["meowth"]) {
+      return regionalForms["meowth"].types;
+    }
+    if (pokemon.rawName === "meowth" && regionalFormActive[pokemon.id] === "galar" && regionalForms["meowth_galar"]) {
+      return regionalForms["meowth_galar"].types;
+    }
+    if (regionalFormActive[pokemon.id] && regionalForms[pokemon.rawName as keyof typeof regionalForms]) {
+      return regionalForms[pokemon.rawName as keyof typeof regionalForms].types;
+    }
+    return pokemon.types;
+  }
+
   const filteredList = pokemonList.filter(pokemon => {
     const matchesName = normalizeString(pokemon.rawName).includes(normalizedSearch);
     const matchesId = pokemon.id.toString().includes(normalizedSearch);
     const matchesAbility = pokemon.abilities.some(ability =>
       normalizeString(ability.name).includes(normalizedSearch)
     );
-    const matchesType = selectedType ? pokemon.types.includes(selectedType) : true;
+    const matchesType = selectedType ? getDisplayTypes(pokemon).includes(selectedType) : true;
     const matchesGeneration = selectedGeneration
       ? pokemon.id >= genRanges[selectedGeneration][0] && pokemon.id <= genRanges[selectedGeneration][1]
       : true;
@@ -692,7 +726,6 @@ export default function HomePage() {
                 regionalFormActive={regionalFormActive}
                 setRegionalFormActive={setRegionalFormActive}
               />
-
 
               <button
                 onClick={async () => {
