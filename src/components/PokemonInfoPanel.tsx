@@ -185,6 +185,73 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
             </div>
         );
     }
+    // Functions to handle colors
+    function getContrastingColor(hex: string) {
+        hex = hex.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+        return yiq >= 128 ? '#222' : '#fff';
+    }
+    function hexToHSL(hex: string) {
+        hex = hex.replace('#', '');
+        let r = parseInt(hex.substring(0, 2), 16) / 255;
+        let g = parseInt(hex.substring(2, 4), 16) / 255;
+        let b = parseInt(hex.substring(4, 6), 16) / 255;
+        let max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+
+        if (max === min) {
+            h = s = 0;
+        } else {
+            let d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h = h! / 6;
+        }
+        return { h: h! * 360, s: s * 100, l: l * 100 };
+    }
+    function hslToHex(h: number, s: number, l: number) {
+        s /= 100;
+        l /= 100;
+        let c = (1 - Math.abs(2 * l - 1)) * s;
+        let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+        let m = l - c / 2;
+        let r = 0, g = 0, b = 0;
+        if (0 <= h && h < 60) { r = c; g = x; b = 0; }
+        else if (60 <= h && h < 120) { r = x; g = c; b = 0; }
+        else if (120 <= h && h < 180) { r = 0; g = c; b = x; }
+        else if (180 <= h && h < 240) { r = 0; g = x; b = c; }
+        else if (240 <= h && h < 300) { r = x; g = 0; b = c; }
+        else if (300 <= h && h < 360) { r = c; g = 0; b = x; }
+        r = Math.round((r + m) * 255);
+        g = Math.round((g + m) * 255);
+        b = Math.round((b + m) * 255);
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+    function getHarmoniousBgColor(hex: string) {
+        const hsl = hexToHSL(hex);
+        // Shift hue by +40deg, lighten, and desaturate a bit
+        const newH = (hsl.h + 40) % 360;
+        const newS = Math.max(30, hsl.s - 20);
+        const newL = Math.min(95, hsl.l + 20);
+        return hslToHex(newH, newS, newL);
+    }
+    function darkenColor(hex: string, amount = 0.3) {
+        hex = hex.replace('#', '');
+        let r = parseInt(hex.substring(0, 2), 16);
+        let g = parseInt(hex.substring(2, 4), 16);
+        let b = parseInt(hex.substring(4, 6), 16);
+        r = Math.round(r * (1 - amount));
+        g = Math.round(g * (1 - amount));
+        b = Math.round(b * (1 - amount));
+        return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+    }
 
     return (
         <div
@@ -294,9 +361,18 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                     {description && (
                         <section className="mb-6">
                             <h3 className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-black"}`}>
-                                Pokedex Entry
+                                Pokedéx Entry
                             </h3>
-                            <div className={`text-base italic ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                            <div
+                                className="text-base italic rounded-md px-4 py-3"
+                                style={{
+                                    background: darkMode
+                                        ? getContrastingColor(bgColor)
+                                        : getHarmoniousBgColor(bgColor),
+                                    color: darkenColor(bgColor, 0.3),
+                                    border: `1.5px solid ${bgColor}`,
+                                }}
+                            >
                                 {description}
                             </div>
                         </section>
@@ -310,10 +386,21 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                                 abilitiesWithDesc.map((ability) => (
                                     <li
                                         key={ability.name}
-                                        className="capitalize bg-indigo-200 text-indigo-800 rounded-md px-3 py-2 font-medium"
+                                        className="capitalize rounded-md px-3 py-2 font-medium"
+                                        style={{
+                                            background: darkMode
+                                                ? getContrastingColor(bgColor)
+                                                : getHarmoniousBgColor(bgColor),
+                                            color: darkenColor(bgColor, 0.3),
+                                            border: `1.5px solid ${bgColor}`,
+                                        }}
                                     >
-                                        <strong>{ability.name.replace("-", " ")}</strong>
-                                        <p className="text-indigo-700 text-sm mt-1">{ability.description}</p>
+                                        <strong style={{ color: darkenColor(bgColor, 0.3) }}>
+                                            {ability.name.replace("-", " ")}
+                                        </strong>
+                                        <p className="text-sm mt-1" style={{ color: darkenColor(bgColor, 0.3) }}>
+                                            {ability.description}
+                                        </p>
                                     </li>
                                 ))
                             ) : (
@@ -334,21 +421,38 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
 
                                 return (
                                     <li key={stat.name} className="flex items-center space-x-1">
-                                        <span className="w-28 capitalize font-medium text-indigo-800">
+                                        <span
+                                            className="w-28 capitalize font-medium"
+                                            style={{ color: darkenColor(bgColor, 0.3) }}
+                                        >
                                             {stat.name.replace("-", " ")}
                                         </span>
                                         <div className="flex-1 bg-indigo-100 rounded-full h-5 overflow-hidden">
                                             <div
-                                                className="bg-indigo-600 h-5 rounded-full transition-all duration-300"
-                                                style={{ width: `${widthPercent}%` }}
+                                                className="h-5 rounded-full transition-all duration-300"
+                                                style={{
+                                                    width: `${widthPercent}%`,
+                                                    background: bgColor,
+                                                    boxShadow: `0 0 8px 0 ${bgColor}88`,
+                                                }}
                                             />
                                         </div>
-                                        <span className="w-10 text-right font-semibold text-indigo-900">
+                                        <span
+                                            className="w-10 text-right font-semibold"
+                                            style={{  color: darkenColor(bgColor, 0.3) }}
+                                        >
                                             {stat.base_stat}
                                         </span>
                                     </li>
                                 );
                             })}
+                            <li className="flex items-center space-x-1 mt-2 border-t pt-2">
+                                <span className="w-28 font-bold" style={{  color: darkenColor(bgColor, 0.3) }}>Total</span>
+                                <div className="flex-1" />
+                                <span className="w-10 text-right font-bold" style={{  color: darkenColor(bgColor, 0.3) }}>
+                                    {selectedPokemon.stats.reduce((sum, stat) => sum + stat.base_stat, 0)}
+                                </span>
+                            </li>
                         </ul>
                     </section>
 
@@ -357,7 +461,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                         <h3 className={`text-xl font-semibold border-b border-gray-300 pb-1 mb-4 ${darkMode ? "text-white" : "text-black"}`}>
                             Moves (Level-up)
                         </h3>
-                        <ul className="max-h-48 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 text-gray-900">
+                        <ul className="max-h-48 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {Array.from(
                                 new Map(
                                     selectedPokemon.moves
@@ -372,9 +476,16 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                                 .map((move, idx) => (
                                     <li
                                         key={`${move.name}-${move.level_learned_at}-${idx}`}
-                                        className="flex justify-between items-center bg-indigo-50 hover:bg-indigo-100 rounded-md px-4 py-2 cursor-default transition-colors"
+                                        className="flex justify-between items-center rounded-md px-4 py-2 cursor-default transition-colors"
+                                        style={{
+                                            background: darkMode
+                                                ? getContrastingColor(bgColor)
+                                                : getHarmoniousBgColor(bgColor),
+                                            color: bgColor,
+                                            border: `1.5px solid ${bgColor}`,
+                                        }}
                                     >
-                                        <span className="font-medium text-indigo-900">
+                                        <span className="font-medium" style={{  color: darkenColor(bgColor, 0.3) }}>
                                             Lv {move.level_learned_at}: {move.name.replace("-", " ")}
                                         </span>
                                     </li>

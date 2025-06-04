@@ -332,7 +332,7 @@ export const regionalForms = {
     },
     avalugg: {
         formName: "Hisuian",
-        pokedexId: 10164,
+        pokedexId: 10243,
         basePokedexId: 713,
         types: ["ice", "rock"],
     },
