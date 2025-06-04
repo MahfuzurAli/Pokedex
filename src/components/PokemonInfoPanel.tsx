@@ -44,7 +44,9 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
     const [abilitiesWithDesc, setAbilitiesWithDesc] = useState<{ name: string; description: string }[]>([]);
     const [isShiny, setIsShiny] = useState(false);
     const [description, setDescription] = useState<string>("");
+    const [descriptionVersion, setDescriptionVersion] = useState<string>("");
     const [bgColor, setBgColor] = useState<string>("#fff");
+
 
     // Extract average color when image loads
     const imgRef = React.useRef<HTMLImageElement>(null);
@@ -125,6 +127,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
             );
             setAbilitiesWithDesc(abilitiesDetailed);
         }
+
         async function fetchDescription(pokemonId: number) {
             try {
                 const res = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`);
@@ -158,8 +161,10 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                         ? entry.flavor_text.replace(/\f/g, " ").replace(/POK[eé]MON/gi, "Pokémon")
                         : "No description available."
                 );
+                setDescriptionVersion(entry?.version?.name ?? "");
             } catch {
                 setDescription("No description available.");
+                setDescriptionVersion("");
             }
         }
         if (selectedPokemon) {
@@ -341,7 +346,12 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                     {description && (
                         <section className="mb-6">
                             <h3 className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-black"}`}>
-                                Pokedéx Entry
+                                Pokédex Entry
+                                {descriptionVersion && (
+                                    <span className="ml-2 text-sm font-normal text-gray-400">
+                                        ({descriptionVersion.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())})
+                                    </span>
+                                )}
                             </h3>
                             <div
                                 className="text-base italic rounded-md px-4 py-3"
