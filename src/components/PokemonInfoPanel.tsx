@@ -83,17 +83,37 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                 return;
             }
 
+            const preferredAbilityVersions = [
+                "scarlet-violet",
+                "sword-shield",
+                "ultra-sun-ultra-moon",
+                "sun-moon",
+                "omega-ruby-alpha-sapphire",
+                "x-y",
+                "black-2-white-2",
+                "black-white",
+                "heartgold-soulsilver",
+                "diamond-pearl",
+                "emerald",
+                "ruby-sapphire",
+                "firered-leafgreen",
+            ];
             const abilitiesDetailed = await Promise.all(
                 selectedPokemon.abilities.map(async (ability) => {
                     try {
                         const res = await fetch(`https://pokeapi.co/api/v2/ability/${ability.name}`);
                         const data = await res.json();
-                        const englishEntry = data.effect_entries.find(
-                            (entry: any) => entry.language.name === "en"
-                        );
+                        const entries = data.flavor_text_entries.filter((e: any) => e.language.name === "en");
+
+                        let entry = preferredAbilityVersions
+                            .map(version => entries.find((e: any) => e.version_group.name === version))
+                            .find(Boolean);
+
+                        if (!entry) entry = entries[0];
+
                         return {
                             name: ability.name,
-                            description: englishEntry?.short_effect ?? "No description available.",
+                            description: entry?.flavor_text.replace(/\f/g, " ") ?? "No description available.",
                         };
                     } catch {
                         return {
@@ -103,25 +123,39 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                     }
                 })
             );
-
             setAbilitiesWithDesc(abilitiesDetailed);
         }
         async function fetchDescription(pokemonId: number) {
             try {
                 const res = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}`);
                 const data = await res.json();
-                // Try to get Scarlet or Violet entry first (Gen 9)
-                const gen9Entry = data.flavor_text_entries.find(
-                    (e: any) =>
-                        e.language.name === "en" &&
-                        (e.version.name === "scarlet" || e.version.name === "violet")
-                );
-                // Fallback to any English entry if Gen 9 not found
-                const entry = gen9Entry ||
-                    data.flavor_text_entries.find((e: any) => e.language.name === "en");
+                const entries = data.flavor_text_entries.filter((e: any) => e.language.name === "en");
+
+                const preferredVersions = [
+                    "scarlet", "violet",
+                    "sword", "shield",
+                    "ultra-sun", "ultra-moon",
+                    "sun", "moon",
+                    "omega-ruby", "alpha-sapphire",
+                    "x", "y",
+                    "black-2", "white-2",
+                    "black", "white",
+                    "heartgold", "soulsilver",
+                    "diamond", "pearl", "platinum",
+                    "emerald",
+                    "ruby", "sapphire",
+                    "firered", "leafgreen",
+                ];
+
+                let entry = preferredVersions
+                    .map(version => entries.find((e: any) => e.version.name === version))
+                    .find(Boolean);
+
+                if (!entry) entry = entries[0];
+
                 setDescription(
                     entry
-                        ? entry.flavor_text.replace(/\f/g, " ").replace(/POKéMON/g, "Pokémon")
+                        ? entry.flavor_text.replace(/\f/g, " ").replace(/POK[eé]MON/gi, "Pokémon")
                         : "No description available."
                 );
             } catch {
