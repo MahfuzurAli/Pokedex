@@ -78,9 +78,9 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>(({ darkMode 
                                 setActiveTabId(pokemon.id);
                             }
                         }}
-                        className={`flex items-center justify-between bg-white shadow rounded-l-full rounded-r-none px-3 py-2 border border-gray-300
-          ${activeTabId === pokemon.id && !minimized ? "border-indigo-500 bg-indigo-100" : ""}
-          hover:bg-indigo-50 transition-colors relative`}
+                        className={`flex items-center justify-between bg-white shadow rounded-l-full rounded-r-none px-3 py-2 border border-black
+        ${activeTabId === pokemon.id && !minimized ? "border-2 border-black bg-black text-black" : ""}
+        hover:bg-gray-100 transition-colors relative`}
                         style={{ minWidth: 80 }}
                     >
                         <img
