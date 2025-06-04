@@ -662,20 +662,21 @@ export default function HomePage() {
               {(imageStyle === 'official' || imageStyle === 'home' || imageStyle === 'sprite') && (
                 <button
                   onClick={() => toggleShiny(pokemon.id)}
-                  className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center"
+                  className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center group"
                   title="Toggle Shiny"
                   aria-label={`Toggle shiny for ${basePokemon.name}`}
                   type="button"
+                  style={{ background: "transparent", border: "none", padding: 0 }}
                 >
                   <img
                     src="/artwork/shiny-sparkle.png"
                     alt="Shiny"
-                    className={`w-5 h-5 transition duration-200 select-none`}
-                    style={{
-                      filter: isShiny
-                        ? "sepia(1) saturate(10) hue-rotate(10deg) brightness(2.5) drop-shadow(0 0 5px #fff700) drop-shadow(0 0 24px #fff700)"
-                        : "grayscale(1) brightness(0)",
-                    }}
+                    className={`w-5 h-5 transition duration-200 select-none
+                      ${isShiny
+                        ? "brightness-150 drop-shadow-[0_0_6px_#fff700] drop-shadow-[0_0_12px_#fff700]"
+                        : "brightness-0"}
+                      group-hover:brightness-150 group-hover:drop-shadow-[0_0_6px_#fff700] group-hover:drop-shadow-[0_0_12px_#fff700] group-hover:scale-110
+                    `}
                     draggable={false}
                   />
                 </button>
