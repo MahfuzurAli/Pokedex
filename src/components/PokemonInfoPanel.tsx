@@ -5,7 +5,7 @@ import { EvolutionNode } from "@/app/types/EvolutionNode";
 import PokemonTabs from "./PokemonTabs";
 import ImageStyleSelector from "./ImageStyleSelector";
 import { FastAverageColor } from "fast-average-color";
-import { getContrastingColor,getHarmoniousBgColor,darkenColor } from "@/utils/colorUtils";
+import { getContrastingColor, getHarmoniousBgColor, darkenColor } from "@/utils/colorUtils";
 
 const typeColors: Record<string, string> = {
     normal: "bg-[#828282]",
@@ -248,13 +248,25 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
 
                     <div className="flex flex-col items-center mb-6">
                         <div
-                            className="w-80 h-80 rounded-lg shadow-lg flex items-center justify-center cursor-pointer"
+                            className="w-90 h-90 rounded-lg shadow-lg flex items-center justify-center cursor-pointer relative"
                             style={{
                                 background: `linear-gradient(0deg, ${bgColor}00 0%, ${bgColor} 80%)`,
                                 transition: "background 0.5s",
                             }}
                             onClick={() => setIsShiny((prev) => !prev)}
                         >
+                            {isShiny && (
+                                <img
+                                    src="/artwork/shiny-sparkle.png"
+                                    alt="Shiny"
+                                    className="absolute top-3 left-3 w-7 h-7"
+                                    style={{
+                                        filter:
+                                            "sepia(1) saturate(10) hue-rotate(10deg) brightness(2.5) drop-shadow(0 0 5px #fff700) drop-shadow(0 0 24px #fff700)",
+                                    }}
+                                    draggable={false}
+                                />
+                            )}
                             <img
                                 ref={imgRef}
                                 src={
@@ -361,7 +373,12 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                                         >
                                             {stat.name.replace("-", " ")}
                                         </span>
-                                        <div className="flex-1 bg-indigo-100 rounded-full h-5 overflow-hidden">
+                                        <div className="flex-1 rounded-full h-5 overflow-hidden"
+                                            style={{
+                                                background: getHarmoniousBgColor(bgColor),
+                                                transition: "background 0.5s",
+                                                border: `1px solid ${bgColor}`,
+                                            }}>
                                             <div
                                                 className="h-5 rounded-full transition-all duration-300"
                                                 style={{
@@ -373,7 +390,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                                         </div>
                                         <span
                                             className="w-10 text-right font-semibold"
-                                            style={{  color: darkenColor(bgColor, 0.3) }}
+                                            style={{ color: darkenColor(bgColor, 0.3) }}
                                         >
                                             {stat.base_stat}
                                         </span>
@@ -381,9 +398,9 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                                 );
                             })}
                             <li className="flex items-center space-x-1 mt-2 border-t pt-2">
-                                <span className="w-28 font-bold" style={{  color: darkenColor(bgColor, 0.3) }}>Total</span>
+                                <span className="w-28 font-bold" style={{ color: darkenColor(bgColor, 0.3) }}>Total</span>
                                 <div className="flex-1" />
-                                <span className="w-10 text-right font-bold" style={{  color: darkenColor(bgColor, 0.3) }}>
+                                <span className="w-10 text-right font-bold" style={{ color: darkenColor(bgColor, 0.3) }}>
                                     {selectedPokemon.stats.reduce((sum, stat) => sum + stat.base_stat, 0)}
                                 </span>
                             </li>
@@ -419,7 +436,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                                             border: `1.5px solid ${bgColor}`,
                                         }}
                                     >
-                                        <span className="font-medium" style={{  color: darkenColor(bgColor, 0.3) }}>
+                                        <span className="font-medium" style={{ color: darkenColor(bgColor, 0.3) }}>
                                             Lv {move.level_learned_at}: {move.name.replace("-", " ")}
                                         </span>
                                     </li>

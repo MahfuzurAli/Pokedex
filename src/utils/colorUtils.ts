@@ -52,11 +52,14 @@ export function hslToHex(h: number, s: number, l: number): string {
 
 export function getHarmoniousBgColor(hex: string): string {
     const hsl = hexToHSL(hex);
-    // Shift hue by +40deg, lighten, and desaturate a bit
     const newH = (hsl.h + 40) % 360;
     const newS = Math.max(30, hsl.s - 20);
-    const newL = Math.min(95, hsl.l + 20);
+    const newL = Math.min(98, hsl.l + 26);
     return hslToHex(newH, newS, newL);
+}
+
+export function darkenHarmoniousBgColor(hex: string, amount = 0.12): string {
+    return darkenColor(getHarmoniousBgColor(hex), amount);
 }
 
 export function darkenColor(hex: string, amount = 0.3): string {
