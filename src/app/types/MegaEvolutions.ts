@@ -1,9 +1,13 @@
-export const megaEvolutions: Record<string, {
+export type MegaEvolutionData = {
     formName: string;
     pokedexId: number;
     basePokedexId: number;
     types: string[];
-}> = {
+};
+
+export type MegaEvolutions = Record<string, MegaEvolutionData>;
+
+export const megaEvolutions: MegaEvolutions = {
     // Mega Evolutions
 
     // Kanto

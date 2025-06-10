@@ -1,4 +1,12 @@
-import { types } from "util";
+export type RegionalFormData = {
+    formName: string;
+    pokedexId: number;
+    basePokedexId: number;
+    types: string[];
+};
+
+export type RegionalForms = Record<string, RegionalFormData>;
+
 
 export const regionalForms = {
     // Alolan Forms (Gen 7)

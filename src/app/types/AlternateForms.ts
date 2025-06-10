@@ -1,3 +1,5 @@
+export type AlternateForms = typeof alternateForms;
+
 export const alternateForms: Record<string, {
   forms: Array<{
     formName: string;
