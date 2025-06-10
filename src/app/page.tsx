@@ -466,7 +466,7 @@ export default function HomePage() {
             displayName = `${basePokemon.name} (${regionalFormData.formName})`;
             displayTypes = regionalFormData.types;
           }
-          
+
           // Origin Form for Dialga, Palkia, Giratina
           let formSuffix = "";
           const altFormData = alternateForms[basePokemon.rawName]?.forms.find(
@@ -1140,6 +1140,59 @@ export default function HomePage() {
                     } catch (e) {
                       alert(`Failed to load ${regionalFormData.formName} data.`);
                       return;
+                    }
+
+                    // --- ORIGIN FORM HANDLER ---
+                  } else if (
+                    (["dialga", "palkia", "giratina-altered"].includes(basePokemon.rawName)) &&
+                    specialFormActive[basePokemon.id] === "origin" &&
+                    alternateForms[basePokemon.rawName]
+                  ) {
+                    const altFormData = alternateForms[basePokemon.rawName].forms.find(f => f.formName === "Origin");
+                    if (altFormData) {
+                      try {
+                        const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${altFormData.pokedexId}`);
+                        if (!res.ok) {
+                          alert("Origin form data not found in PokéAPI.");
+                          return;
+                        }
+                        const data = await res.json();
+                        pokemonToOpen = {
+                          id: data.id,
+                          rawName: data.name,
+                          name: `${basePokemon.name} (Origin)`,
+                          types: data.types.map((t: any) => t.type.name),
+                          abilities: data.abilities.map((a: any) => ({
+                            name: a.ability.name,
+                            description: "",
+                          })),
+                          images: {
+                            official: data.sprites.other?.['official-artwork']?.front_default ?? "",
+                            home: data.sprites.other?.['home']?.front_default ?? "",
+                            sprite: data.sprites.front_default ?? "",
+                          },
+                          stats: data.stats.map((s: any) => ({
+                            name: s.stat.name,
+                            base_stat: s.base_stat,
+                          })),
+                          moves: data.moves.flatMap((m: any) =>
+                            m.version_group_details
+                              .filter((v: any) => v.move_learn_method.name === "level-up")
+                              .map((v: any) => ({
+                                name: m.move.name,
+                                move_learn_method: v.move_learn_method.name,
+                                level_learned_at: v.level_learned_at,
+                              }))
+                          ),
+                          height: data.height,
+                          weight: data.weight,
+                          baseSpeciesId: basePokemon.id,
+                          basePokedexId: basePokemon.id,
+                        };
+                      } catch (e) {
+                        alert("Failed to load Origin form data.");
+                        return;
+                      }
                     }
                   }
 
