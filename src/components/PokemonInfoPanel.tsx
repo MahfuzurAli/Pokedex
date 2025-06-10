@@ -45,6 +45,8 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
     const [isShiny, setIsShiny] = useState(false);
     const [description, setDescription] = useState<string>("");
     const [descriptionVersion, setDescriptionVersion] = useState<string>("");
+    const [secondaryDescription, setSecondaryDescription] = useState<string>("");
+    const [secondaryDescriptionVersion, setSecondaryDescriptionVersion] = useState<string>("");
     const [bgColor, setBgColor] = useState<string>("#fff");
 
 
@@ -134,6 +136,11 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                 const data = await res.json();
                 const entries = data.flavor_text_entries.filter((e: any) => e.language.name === "en");
 
+                // Standalone games to deprioritize for secondary entry
+                const standaloneGames = [
+                    "legends-arceus", "lets-go-pikachu", "lets-go-eevee", "brilliant-diamond", "shining-pearl"
+                ];
+
                 const preferredVersions = [
                     "scarlet", "violet",
                     "sword", "shield",
@@ -148,23 +155,49 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                     "emerald",
                     "ruby", "sapphire",
                     "firered", "leafgreen",
+                    ...standaloneGames
                 ];
 
-                let entry = preferredVersions
+                // Find the main entry
+                let mainEntry = preferredVersions
                     .map(version => entries.find((e: any) => e.version.name === version))
                     .find(Boolean);
 
-                if (!entry) entry = entries[0];
+                if (!mainEntry) mainEntry = entries[0];
 
                 setDescription(
-                    entry
-                        ? entry.flavor_text.replace(/\f/g, " ").replace(/POK[eé]MON/gi, "Pokémon")
+                    mainEntry
+                        ? mainEntry.flavor_text.replace(/\f/g, " ").replace(/POK[eé]MON/gi, "Pokémon")
                         : "No description available."
                 );
-                setDescriptionVersion(entry?.version?.name ?? "");
+                setDescriptionVersion(mainEntry?.version?.name ?? "");
+
+                // Find the secondary entry: skip the main entry's version and skip standalone games if main is standalone
+                let secondaryEntry: any = null;
+                if (mainEntry && standaloneGames.includes(mainEntry.version.name)) {
+                    // If main is standalone, pick the first non-standalone version
+                    secondaryEntry = preferredVersions
+                        .filter(v => !standaloneGames.includes(v))
+                        .map(version => entries.find((e: any) => e.version.name === version && e.version.name !== mainEntry.version.name))
+                        .find(Boolean);
+                } else {
+                    // If main is not standalone, pick the next available different version (not main)
+                    secondaryEntry = preferredVersions
+                        .map(version => entries.find((e: any) => e.version.name === version && e.version.name !== mainEntry.version.name))
+                        .find(Boolean);
+                }
+
+                setSecondaryDescription(
+                    secondaryEntry
+                        ? secondaryEntry.flavor_text.replace(/\f/g, " ").replace(/POK[eé]MON/gi, "Pokémon")
+                        : ""
+                );
+                setSecondaryDescriptionVersion(secondaryEntry?.version?.name ?? "");
             } catch {
                 setDescription("No description available.");
                 setDescriptionVersion("");
+                setSecondaryDescription("");
+                setSecondaryDescriptionVersion("");
             }
         }
         if (selectedPokemon) {
@@ -347,14 +380,14 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                         <section className="mb-6">
                             <h3 className={`text-xl font-semibold mb-2 ${darkMode ? "text-white" : "text-black"}`}>
                                 Pokédex Entry
-                                {descriptionVersion && (
-                                    <span className="ml-2 text-sm font-normal text-gray-400">
-                                        ({descriptionVersion.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())})
-                                    </span>
-                                )}
                             </h3>
+                            {descriptionVersion && (
+                                <div className="text-sm font-semibold text-gray-400 mb-1">
+                                    {descriptionVersion.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                                </div>
+                            )}
                             <div
-                                className="text-base italic rounded-md px-4 py-3"
+                                className="text-base italic rounded-md px-4 py-3 mb-3"
                                 style={{
                                     background: darkMode
                                         ? getContrastingColor(bgColor)
@@ -365,6 +398,27 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                             >
                                 {description}
                             </div>
+                            {secondaryDescription && (
+                                <div>
+                                    <span className="text-sm font-semibold text-gray-400">
+                                        {secondaryDescriptionVersion
+                                            ? secondaryDescriptionVersion.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())
+                                            : ""}
+                                    </span>
+                                    <div
+                                        className="text-base italic rounded-md px-4 py-3 mt-1"
+                                        style={{
+                                            background: darkMode
+                                                ? getContrastingColor(bgColor)
+                                                : getHarmoniousBgColor(bgColor),
+                                            color: darkenColor(bgColor, 0.3),
+                                            border: `1.5px solid ${bgColor}`,
+                                        }}
+                                    >
+                                        {secondaryDescription}
+                                    </div>
+                                </div>
+                            )}
                         </section>
                     )}
 
