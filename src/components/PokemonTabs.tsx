@@ -79,31 +79,37 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>(({ darkMode 
                             }
                         }}
                         className={`flex items-center justify-between
-        bg-white/40 backdrop-blur-md shadow
-        rounded-l-full rounded-r-none px-3 py-2 border border-black
-        ${activeTabId === pokemon.id && !minimized ? "border-2 border-black bg-black/40 text-black" : ""}
-        hover:bg-white/60 transition-colors relative`}
-                        style={{ minWidth: 80 }}
+                      bg-white/40 backdrop-blur-md shadow
+                      rounded-l-full rounded-r-none px-3 py-2 border border-black
+                      ${activeTabId === pokemon.id && !minimized ? "ring-2 ring-white border-transparent shadow-lg" : ""}
+                      hover:bg-white/60 transition-colors relative
+                      ${minimized ? "justify-center px-2 py-2" : ""}`}
+                        style={{ minWidth: minimized ? 48 : 80, minHeight: minimized ? 48 : undefined }}
                     >
-
                         <img
                             src={pokemon.images?.sprite || "/placeholder.png"}
                             alt={pokemon.name}
-                            className="w-8 h-8 mr-2"
+                            className={`transition-all duration-200
+                        ${minimized ? "w-9 h-9 mx-auto" : "w-9 h-9 mr-2"}`}
+                            style={minimized ? { display: "block" } : {}}
                         />
-                        <span className="capitalize font-medium">{pokemon.name}</span>
-                        <span
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                closeTab(pokemon.id);
-                            }}
-                            className="ml-2 text-gray-400 hover:text-red-500 cursor-pointer"
-                            aria-label="Close tab"
-                            role="button"
-                            tabIndex={0}
-                        >
-                            ×
-                        </span>
+                        {!minimized && (
+                            <>
+                                <span className="capitalize font-medium">{pokemon.name}</span>
+                                <span
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        closeTab(pokemon.id);
+                                    }}
+                                    className="ml-2 text-gray-400 hover:text-red-500 cursor-pointer"
+                                    aria-label="Close tab"
+                                    role="button"
+                                    tabIndex={0}
+                                >
+                                    ×
+                                </span>
+                            </>
+                        )}
                     </button>
                 ))}
             </div>
