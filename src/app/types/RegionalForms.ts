@@ -208,7 +208,7 @@ export const regionalForms = {
         basePokedexId: 554,
         types: ["ice"],
     },
-    'darmanitan': {
+    'darmanitan-standard': {
         formName: "Galarian",
         pokedexId: 10177,
         basePokedexId: 555,
