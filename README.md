@@ -1,15 +1,20 @@
-
 # Pokédex Project
 
 ## Overview
 
-This is a simple Pokédex web application built using **Next.js** and **shadcn/ui**. It fetches data from the [PokeAPI](https://pokeapi.co/) to display a list of Pokémon along with their respective sprites. The application is designed to allow users to explore information about various Pokémon in a grid layout, with the ability to view their names and unique identifiers (IDs).
+This is a feature-rich Pokédex web application built using **Next.js** and **shadcn/ui**. It fetches data from the [PokeAPI](https://pokeapi.co/) and supports a wide variety of Pokémon forms, including regional, mega, and alternate forms. The app allows users to explore detailed information about Pokémon, view their sprites and official artwork, and interact with a modern, responsive UI.
 
 ## Features
 
-- **Pokémon List**: Displays a list of the first 1025 Pokémon, sourced from the PokeAPI.
-- **Sprite Display**: Shows each Pokémon's sprite in a clean, responsive layout.
+- **Pokémon List**: Displays a list of the first 1025 Pokémon, including support for regional, mega, and alternate forms.
+- **Sprite & Official Artwork Display**: Toggle between sprites, HOME, and official artwork for each Pokémon.
 - **Responsive Design**: The layout adapts to different screen sizes (mobile, tablet, desktop).
+- **Tab Info Panel**: Open multiple Pokémon info panels as tabs, with customizable placement (right sidebar or bottom bar).
+- **Form Toggles**: Instantly switch between regional, mega, and special forms (like Origin Dialga/Palkia/Giratina) and see their correct images and info.
+- **Shiny Toggle**: View shiny versions of Pokémon artwork and sprites.
+- **Search & Sort**: Search for Pokémon by name or ID and sort the list by various criteria.
+- **Type & Generation Filters**: Filter Pokémon by type or generation.
+- **Dark Mode**: Toggle between light and dark themes.
 - **Loading State**: A simple loading indicator is displayed while the Pokémon data is being fetched.
 
 ## Technologies Used
@@ -17,6 +22,7 @@ This is a simple Pokédex web application built using **Next.js** and **shadcn/u
 - **Next.js**: A React framework for building web applications.
 - **TypeScript**: A statically typed superset of JavaScript.
 - **Tailwind CSS**: A utility-first CSS framework for building responsive and customizable UI.
+- **shadcn/ui**: For accessible and beautiful UI components.
 
 ## Installation
 
@@ -43,16 +49,19 @@ This is a simple Pokédex web application built using **Next.js** and **shadcn/u
 
 ## Current Features
 
-- Displays a list of Pokémon with their names and IDs.
-- Displays Pokémon sprites from the PokeAPI.
+- Displays a list of Pokémon with their names, IDs, types, and forms.
+- Displays Pokémon sprites, HOME, and official artwork from the PokeAPI.
+- Info panel with tabbed browsing and placement customization.
+- Toggle and view regional, mega, and alternate forms (including Origin forms).
+- Shiny toggle for all supported artwork styles.
+- Search, sort, and filter Pokémon.
+- Dark mode support.
 
 ## Future Improvements
 
-- **Official Artwork**: Replace sprites with official Pokémon artwork for a more polished look.
-- **Search Functionality**: Add a search bar to allow users to search for specific Pokémon by name or ID.
-- **Detailed Information**: Add more detailed information about each Pokémon, such as types, abilities, and stats.
-- **Pagination**: Implement pagination to load Pokémon in smaller chunks for better performance with larger datasets.
 - **Favorites**: Allow users to mark Pokémon as favorites and save them locally.
+- **Performance**: Further optimize loading and rendering for large datasets.
+- **Accessibility**: Continue improving keyboard and screen reader support.
 
 ## License
 
