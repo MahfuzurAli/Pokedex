@@ -11,6 +11,8 @@ interface AlternateFormsProps {
     setMegaFormActive: React.Dispatch<React.SetStateAction<{ [pokemonId: number]: string | null }>>;
     regionalFormActive: { [pokemonId: number]: string | null };
     setRegionalFormActive: React.Dispatch<React.SetStateAction<{ [pokemonId: number]: string | null }>>;
+    specialFormActive: { [pokemonId: number]: string | null }; // ADD THIS
+    setSpecialFormActive: React.Dispatch<React.SetStateAction<{ [pokemonId: number]: string | null }>>; // ADD THIS
 }
 
 const AlternateForms: React.FC<AlternateFormsProps> = ({
@@ -21,6 +23,8 @@ const AlternateForms: React.FC<AlternateFormsProps> = ({
     setMegaFormActive,
     regionalFormActive,
     setRegionalFormActive,
+    specialFormActive,
+    setSpecialFormActive,
 }) => {
     const basePokemon = pokemon;
     const hasRegionalForm = regionalForms.hasOwnProperty(basePokemon.rawName);
@@ -67,6 +71,41 @@ const AlternateForms: React.FC<AlternateFormsProps> = ({
                     />
                 </button>
             </div>
+        );
+    }
+
+    if (
+        basePokemon.rawName === "dialga" ||
+        basePokemon.rawName === "palkia" ||
+        basePokemon.rawName === "giratina-altered"
+    ) {
+        return (
+            <button
+                onClick={() => {
+                    setSpecialFormActive(prev => {
+                        const current = prev[basePokemon.id];
+                        let nextForm = current === "origin" ? "" : "origin";
+                        return { ...prev, [basePokemon.id]: nextForm };
+                    });
+                }}
+                className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center z-10"
+                title={`Toggle ${basePokemon.name} Form`}
+                type="button"
+                style={{ background: "transparent", border: "none", padding: 0 }}
+            >
+                <img
+                    src={
+                        basePokemon.rawName === "dialga"
+                            ? "/form-change-icons/adamant-crystal.png"
+                            : basePokemon.rawName === "palkia"
+                                ? "/form-change-icons/lustrous-globe.png"
+                                : "/form-change-icons/griseous-core.png"
+                    }
+                    alt="Change Form"
+                    className="w-6 h-6"
+                    draggable={false}
+                />
+            </button>
         );
     }
 

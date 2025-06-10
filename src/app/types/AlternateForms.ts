@@ -1,6 +1,10 @@
 export const alternateForms: Record<string, {
   forms: Array<{
     formName: string;
+    pokedexId?: number;
+    basePokedexId?: number;
+    types?: string[];
+    formSuffix?: string;
     apiName?: string;
     notes?: string;
   }>;
@@ -108,11 +112,53 @@ export const alternateForms: Record<string, {
       { formName: "Mow" }
     ]
   },
-  "giratina": {
+  dialga: {
     forms: [
-      { formName: "Altered" },
-      { formName: "Origin" }
-    ]
+      {
+        formName: "Normal",
+        pokedexId: 483,
+        basePokedexId: 483,
+        types: ["steel", "dragon"],
+      },
+      {
+        formName: "Origin",
+        pokedexId: 10245,
+        basePokedexId: 483,
+        types: ["steel", "dragon"],
+      },
+    ],
+  },
+  palkia: {
+    forms: [
+      {
+        formName: "Normal",
+        pokedexId: 484,
+        basePokedexId: 484,
+        types: ["water", "dragon"],
+      },
+      {
+        formName: "Origin",
+        pokedexId: 10246,
+        basePokedexId: 484,
+        types: ["water", "dragon"],
+      },
+    ],
+  },
+  "giratina-altered": {
+    forms: [
+      {
+        formName: "Altered",
+        pokedexId: 487,
+        basePokedexId: 487,
+        types: ["ghost", "dragon"],
+      },
+      {
+        formName: "Origin",
+        pokedexId: 10007,
+        basePokedexId: 487,
+        types: ["ghost", "dragon"],
+      },
+    ],
   },
   "shaymin": {
     forms: [

@@ -13,6 +13,7 @@ import { megaEvolutions } from "./types/MegaEvolutions";
 import PokemonCard from "@/components/PokemonCard";
 import ImageStyleSelector from "@/components/ImageStyleSelector";
 import AlternateForms from "@/components/AlternateForms";
+import { alternateForms } from "./types/AlternateForms";
 
 const typeColors: Record<string, string> = {
   normal: "bg-[#828282]",
@@ -42,6 +43,7 @@ function normalizeString(str: string) {
 }
 
 export default function HomePage() {
+  // Constants and State Variables
   const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -55,6 +57,7 @@ export default function HomePage() {
   const [megaActive, setMegaActive] = useState<{ [pokemonId: number]: boolean }>({});
   const [megaFormActive, setMegaFormActive] = useState<{ [pokemonId: number]: string | null }>({});
   const [darkMode, setDarkMode] = useState(false);
+  const [specialFormActive, setSpecialFormActive] = useState<{ [pokemonId: number]: string | null }>({});
   // Generation ID Ranges
   const genRanges: Record<string, [number, number]> = {
     Kanto: [1, 151],
@@ -463,6 +466,22 @@ export default function HomePage() {
             displayName = `${basePokemon.name} (${regionalFormData.formName})`;
             displayTypes = regionalFormData.types;
           }
+          
+          // Origin Form for Dialga, Palkia, Giratina
+          let formSuffix = "";
+          const altFormData = alternateForms[basePokemon.rawName]?.forms.find(
+            f =>
+              (specialFormActive[basePokemon.id] === "origin" && f.formName === "Origin") ||
+              (!specialFormActive[basePokemon.id] && f.formName === "Normal")
+          );
+
+          if (altFormData) {
+            displayPokemonId = altFormData.pokedexId ?? displayPokemonId;
+            displayName = `${basePokemon.name}${altFormData.formName && altFormData.formName !== "Normal" ? ` (${altFormData.formName})` : ""}`;
+            displayTypes = altFormData.types ?? displayTypes;
+            formSuffix = altFormData.formSuffix ?? "";
+          }
+
           let displayAbilities = basePokemon.abilities.map(a => a.name);
 
           // Mega Evolution takes priority (Charizard & Mewtwo multi-form support)
@@ -533,7 +552,6 @@ export default function HomePage() {
 
           // Determine image URL dynamically based on selected form and shiny status
           let imageUrl = "";
-
           if (isShiny) {
             if (basePokemon.rawName === "charizard") {
               if (megaFormActive[basePokemon.id] === "x" && megaEvolutions["charizard"]) {
@@ -695,6 +713,25 @@ export default function HomePage() {
               imageUrl = basePokemon.images[imageStyle] ?? "";
             }
           }
+          if (["dialga", "palkia", "giratina-altered"].includes(basePokemon.rawName)) {
+            if (isShiny) {
+              if (imageStyle === 'official') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${displayPokemonId}${formSuffix}.png`;
+              } else if (imageStyle === 'home') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${displayPokemonId}${formSuffix}.png`;
+              } else if (imageStyle === 'sprite') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${displayPokemonId}${formSuffix}.png`;
+              }
+            } else {
+              if (imageStyle === 'official') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${displayPokemonId}${formSuffix}.png`;
+              } else if (imageStyle === 'home') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${displayPokemonId}${formSuffix}.png`;
+              } else if (imageStyle === 'sprite') {
+                imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${displayPokemonId}${formSuffix}.png`;
+              }
+            }
+          }
           return (
             <PokemonCard key={pokemon.id} imageUrl={imageUrl} displayName={displayName}>
               {/* Shiny toggle button */}
@@ -729,6 +766,8 @@ export default function HomePage() {
                 setMegaFormActive={setMegaFormActive}
                 regionalFormActive={regionalFormActive}
                 setRegionalFormActive={setRegionalFormActive}
+                specialFormActive={specialFormActive}
+                setSpecialFormActive={setSpecialFormActive}
               />
 
               <button
