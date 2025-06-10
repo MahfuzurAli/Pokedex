@@ -266,14 +266,16 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                 z-50 flex flex-col overflow-y-auto
                 transform transition-transform duration-300 ease-in-out
                 ${selectedPokemon ? "translate-x-0" : "translate-x-full"}
-                ${darkMode ? "bg-[#23272f] text-white" : "bg-white text-black"}
+                ${darkMode
+                    ? "bg-black/50 backdrop-blur-md text-white"
+                    : "bg-white/50 backdrop-blur-md text-black"}
               `}
         >
             <div className="flex items-center justify-end mb-6 gap-2">
                 {showMinimize && onMinimize && (
                     <button
                         onClick={onMinimize}
-                        className="text-gray-400 hover:text-indigo-600 text-3xl font-bold transition-colors"
+                        className="text-gray-400 hover:text-indigo-600 tFext-3xl font-bold transition-colors"
                         aria-label="Minimize info panel"
                         type="button"
                     >
@@ -364,7 +366,11 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                             />
                         </div>
                         <div className="mt-3">
-                            <ImageStyleSelector imageStyle={selectedArtwork} setImageStyle={setSelectedArtwork} />
+                            <ImageStyleSelector
+                                imageStyle={selectedArtwork}
+                                setImageStyle={setSelectedArtwork}
+                                darkMode={darkMode}
+                            />
                         </div>
                     </div>
 
