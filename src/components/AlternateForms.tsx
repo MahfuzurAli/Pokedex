@@ -88,7 +88,7 @@ const AlternateForms: React.FC<AlternateFormsProps> = ({
                         return { ...prev, [basePokemon.id]: nextForm };
                     });
                 }}
-                className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center z-10"
+                className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center z-10 transition-transform duration-150 hover:scale-110"
                 title={`Toggle ${basePokemon.name} Form`}
                 type="button"
                 style={{ background: "transparent", border: "none", padding: 0 }}

@@ -28,7 +28,7 @@ interface PokemonListProps {
     imageStyle: 'official' | 'home' | 'sprite';
     alternateForms: AlternateFormsType;
     megaEvolutions: MegaEvolutions;
-    tabsRef: React.RefObject<PokemonTabsHandle | null >;
+    tabsRef: React.RefObject<PokemonTabsHandle | null>;
 }
 
 const PokemonList: React.FC<PokemonListProps> = ({
@@ -147,9 +147,18 @@ const PokemonList: React.FC<PokemonListProps> = ({
 
                 if (altFormData) {
                     displayPokemonId = altFormData.pokedexId ?? displayPokemonId;
-                    displayName = `${basePokemon.name}${altFormData.formName && altFormData.formName !== "Normal" ? ` (${altFormData.formName})` : ""}`;
+                    displayName =
+                        basePokemon.rawName === "giratina-altered" && altFormData.formName === "Origin"
+                            ? "Giratina (Origin)"
+                            : `${basePokemon.name}${altFormData.formName && altFormData.formName !== "Normal" ? ` (${altFormData.formName})` : ""}`;
                     displayTypes = altFormData.types ?? displayTypes;
                     formSuffix = altFormData.formSuffix ?? "";
+                }
+                if (
+                    basePokemon.rawName === "giratina-altered" &&
+                    (!altFormData || altFormData.formName === "Normal" || altFormData.formName === "Altered")
+                ) {
+                    displayName = "Giratina (Altered)";
                 }
 
                 let displayAbilities = basePokemon.abilities.map(a => a.name);

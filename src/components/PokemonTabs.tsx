@@ -95,7 +95,13 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>(({ darkMode 
                         />
                         {!minimized && (
                             <>
-                                <span className="capitalize font-medium">{pokemon.name}</span>
+                                <span className="capitalize font-medium">
+                                    {pokemon.rawName === "giratina-altered" && pokemon.name.toLowerCase().includes("origin")
+                                        ? "Giratina (Origin)"
+                                        : pokemon.rawName === "giratina-altered"
+                                            ? "Giratina (Altered)"
+                                            : pokemon.name.replace(/^Giratina Altered/, "Giratina")}
+                                </span>
                                 <span
                                     onClick={(e) => {
                                         e.stopPropagation();

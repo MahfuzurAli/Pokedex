@@ -48,6 +48,14 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
     const [secondaryDescription, setSecondaryDescription] = useState<string>("");
     const [secondaryDescriptionVersion, setSecondaryDescriptionVersion] = useState<string>("");
     const [bgColor, setBgColor] = useState<string>("#fff");
+    const isGiratinaOrigin =
+        selectedPokemon &&
+        selectedPokemon.rawName === "giratina-altered" &&
+        (
+            selectedPokemon.id === 10007 ||
+            selectedPokemon.name.toLowerCase().includes("origin") ||
+            (selectedPokemon as any).formName === "Origin"
+        );
 
 
     // Extract average color when image loads
@@ -295,11 +303,20 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
             {selectedPokemon && (
                 <>
                     <h2 className={`text-3xl font-bold mb-2 text-center capitalize ${darkMode ? "text-white" : "text-black"}`}>
-                        {selectedPokemon.name}{" "}
+                        {
+                            selectedPokemon.rawName === "giratina-altered" &&
+                                (
+                                    selectedPokemon.id === 10007 ||
+                                    selectedPokemon.name.toLowerCase().includes("origin")
+                                )
+                                ? "Giratina (Origin)"
+                                : selectedPokemon.rawName === "giratina-altered"
+                                    ? "Giratina (Altered)"
+                                    : selectedPokemon.name.replace("Giratina Altered", "Giratina")
+                        }{" "}
                         <span className="text-lg font-normal text-gray-400">
                             #
                             {
-                                // Prefer basePokedexId for regional forms if it exists, else fallback to id
                                 (selectedPokemon as any).basePokedexId
                                     ? (selectedPokemon as any).basePokedexId.toString().padStart(3, "0")
                                     : selectedPokemon.id.toString().padStart(3, "0")
