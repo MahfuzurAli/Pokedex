@@ -10,7 +10,7 @@ This is a feature-rich Pokédex web application built using **Next.js** and **sh
 - **Sprite & Official Artwork Display**: Toggle between sprites, HOME, and official artwork for each Pokémon.
 - **Responsive Design**: The layout adapts to different screen sizes (mobile, tablet, desktop).
 - **Tab Info Panel**: Open multiple Pokémon info panels as tabs, with customizable placement (right sidebar or bottom bar).
-- **Form Toggles**: Instantly switch between regional, mega, and special forms (like Origin Dialga/Palkia/Giratina) and see their correct images and info.
+- **Form Toggles**: Instantly switch between regional, mega, and special forms and see their correct images and info.
 - **Shiny Toggle**: View shiny versions of Pokémon artwork and sprites.
 - **Search & Sort**: Search for Pokémon by name or ID and sort the list by various criteria.
 - **Type & Generation Filters**: Filter Pokémon by type or generation.
@@ -52,7 +52,7 @@ This is a feature-rich Pokédex web application built using **Next.js** and **sh
 - Displays a list of Pokémon with their names, IDs, types, and forms.
 - Displays Pokémon sprites, HOME, and official artwork from the PokeAPI.
 - Info panel with tabbed browsing and placement customization.
-- Toggle and view regional, mega, and alternate forms (including Origin forms).
+- Toggle and view regional, mega, and alternate forms.
 - Shiny toggle for all supported artwork styles.
 - Search, sort, and filter Pokémon.
 - Dark mode support.
