@@ -29,6 +29,7 @@ interface PokemonListProps {
     alternateForms: AlternateFormsType;
     megaEvolutions: MegaEvolutions;
     tabsRef: React.RefObject<PokemonTabsHandle | null>;
+    darkMode: boolean;
 }
 
 const PokemonList: React.FC<PokemonListProps> = ({
@@ -50,6 +51,7 @@ const PokemonList: React.FC<PokemonListProps> = ({
     tabsRef,
     alternateForms,
     megaEvolutions,
+    darkMode,
 }) => {
     return (
         <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
@@ -889,7 +891,7 @@ const PokemonList: React.FC<PokemonListProps> = ({
                                     tabsRef.current?.openTab(pokemonToOpen);
                                 }
                             }}
-                            className="font-medium text-center hover:underline"
+                            className={`font-medium text-center hover:underline ${darkMode ? "text-white" : "text-black"}`}
                             type="button"
                             aria-label={`Show more info about ${displayName}`}
                         >
@@ -907,7 +909,7 @@ const PokemonList: React.FC<PokemonListProps> = ({
                             {displayName}
                         </button>
 
-                        <span className="text-s text-black text-center mt-1 italic">
+                        <span className={`text-s text-center mt-1 italic ${darkMode ? "text-white" : "text-black"}`}>
                             {displayAbilities
                                 .map(ability =>
                                     ability

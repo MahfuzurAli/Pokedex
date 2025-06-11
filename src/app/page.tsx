@@ -401,6 +401,7 @@ export default function HomePage() {
         alternateForms={alternateForms}
         megaEvolutions={megaEvolutions}
         tabsRef={tabsRef}
+        darkMode={darkMode}
       />
 
       {filteredList.length === 0 && (
