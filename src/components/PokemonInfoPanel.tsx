@@ -36,9 +36,10 @@ interface Props {
     showMinimize?: boolean;
     onMinimize?: () => void;
     darkMode?: boolean;
+    onColorChange?: (color: string) => void;
 }
 
-export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, showMinimize, onMinimize, darkMode = false }: Props) {
+export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, showMinimize, onMinimize, darkMode = false, onColorChange }: Props) {
     const [selectedArtwork, setSelectedArtwork] = useState<"official" | "home" | "sprite">("home");
     const [evolutionChainTree, setEvolutionChainTree] = useState<EvolutionNode | null>(null);
     const [abilitiesWithDesc, setAbilitiesWithDesc] = useState<{ name: string; description: string }[]>([]);
@@ -69,6 +70,13 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                 .catch(() => setBgColor("#fff"));
         }
     };
+
+    useEffect(() => {
+        if (selectedPokemon && onColorChange) {
+            onColorChange(bgColor);
+        }
+        // Only call when bgColor or selectedPokemon changes
+    }, [bgColor, selectedPokemon]);
 
     useEffect(() => {
         async function fetchEvolutionChain(pokemonId: number) {

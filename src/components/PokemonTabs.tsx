@@ -18,6 +18,7 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>(({ darkMode 
     const [tabs, setTabs] = useState<Pokemon[]>([]);
     const [activeTabId, setActiveTabId] = useState<number | null>(null);
     const [minimized, setMinimized] = useState(false);
+    const [tabsColors, setTabColors] = useState<Record<number, string>>({});
 
     // Expose openTab to parent via ref
     useImperativeHandle(ref, () => ({
@@ -58,6 +59,11 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>(({ darkMode 
         setMinimized(false);
     }
 
+    // Handle color change for a Pokémon tab
+    function handleColorChange(pokemonId: number, color: string) {
+        setTabColors((prev) => ({ ...prev, [pokemonId]: color }));
+    }
+
     const activePokemon = tabs.find((p) => p.id === activeTabId) || null;
 
     return (
@@ -84,7 +90,18 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>(({ darkMode 
                       ${activeTabId === pokemon.id && !minimized ? "ring-2 ring-white border-transparent shadow-lg" : ""}
                       hover:bg-white/60 transition-colors relative
                       ${minimized ? "justify-center px-2 py-2" : ""}`}
-                        style={{ minWidth: minimized ? 48 : 80, minHeight: minimized ? 48 : undefined }}
+                        style={{
+                            minWidth: minimized ? 48 : 80,
+                            minHeight: minimized ? 48 : undefined,
+                            boxShadow:
+                                activeTabId === pokemon.id && !minimized && tabsColors[pokemon.id]
+                                    ? `0 0 0 4px ${tabsColors[pokemon.id]}`
+                                    : undefined,
+                            borderColor:
+                                activeTabId === pokemon.id && !minimized && tabsColors[pokemon.id]
+                                    ? tabsColors[pokemon.id]
+                                    : undefined,
+                        }}
                     >
                         <img
                             src={pokemon.images?.sprite || "/placeholder.png"}
@@ -137,6 +154,7 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>(({ darkMode 
                             showMinimize
                             onMinimize={minimizePanel}
                             darkMode={darkMode}
+                            onColorChange={(color: string) => handleColorChange(activePokemon.id, color)}
                         />
                     )}
                 </div>
