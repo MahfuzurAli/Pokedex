@@ -405,7 +405,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                                 Pokédex Entry
                             </h3>
                             {descriptionVersion && (
-                                <div className="text-sm font-semibold text-gray-400 mb-1">
+                                <div className="text-sm font-semibold black mb-1">
                                     {descriptionVersion.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
                                 </div>
                             )}
@@ -423,7 +423,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
                             </div>
                             {secondaryDescription && (
                                 <div>
-                                    <span className="text-sm font-semibold text-gray-400">
+                                    <span className="text-sm font-semibold black mb-1">
                                         {secondaryDescriptionVersion
                                             ? secondaryDescriptionVersion.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())
                                             : ""}
