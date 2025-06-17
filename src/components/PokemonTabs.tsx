@@ -123,18 +123,23 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>(({ darkMode 
             {/* Info Panel */}
             <div
                 className={`fixed top-0 right-0 h-full z-50 transition-transform duration-300
-          ${minimized || !activePokemon ? "translate-x-full" : "translate-x-0"}`}
+        ${activePokemon && !minimized ? "translate-x-0" : "translate-x-full"}`}
                 style={{ width: 340 }}
             >
-                {activePokemon && !minimized && (
-                    <PokemonInfoPanel
-                        selectedPokemon={activePokemon}
-                        setSelectedPokemon={() => activePokemon && closeTab(activePokemon.id)}
-                        showMinimize
-                        onMinimize={minimizePanel}
-                        darkMode={darkMode}
-                    />
-                )}
+                <div
+                    className={`h-full transition-opacity duration-200 ${activePokemon && !minimized ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                        }`}
+                >
+                    {activePokemon && (
+                        <PokemonInfoPanel
+                            selectedPokemon={activePokemon}
+                            setSelectedPokemon={() => activePokemon && closeTab(activePokemon.id)}
+                            showMinimize
+                            onMinimize={minimizePanel}
+                            darkMode={darkMode}
+                        />
+                    )}
+                </div>
             </div>
         </>
     );
