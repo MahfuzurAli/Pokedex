@@ -105,6 +105,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
 
             const preferredAbilityVersions = [
                 "scarlet-violet",
+                "legends-arceus",
                 "sword-shield",
                 "ultra-sun-ultra-moon",
                 "sun-moon",
@@ -159,6 +160,7 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
 
                 const preferredVersions = [
                     "scarlet", "violet",
+                    "legends-arceus",
                     "sword", "shield",
                     "ultra-sun", "ultra-moon",
                     "sun", "moon",
@@ -190,25 +192,23 @@ export default function PokemonInfoPanel({ selectedPokemon, setSelectedPokemon, 
 
                 // Find the secondary entry: skip the main entry's version and skip standalone games if main is standalone
                 let secondaryEntry: any = null;
-                if (mainEntry && standaloneGames.includes(mainEntry.version.name)) {
-                    // If main is standalone, pick the first non-standalone version
-                    secondaryEntry = preferredVersions
-                        .filter(v => !standaloneGames.includes(v))
-                        .map(version => entries.find((e: any) => e.version.name === version && e.version.name !== mainEntry.version.name))
-                        .find(Boolean);
+                if (!mainEntry || standaloneGames.includes(mainEntry.version.name)) {
+                    // If main is standalone or missing, do NOT show a secondary entry
+                    setSecondaryDescription("");
+                    setSecondaryDescriptionVersion("");
                 } else {
                     // If main is not standalone, pick the next available different version (not main)
                     secondaryEntry = preferredVersions
                         .map(version => entries.find((e: any) => e.version.name === version && e.version.name !== mainEntry.version.name))
                         .find(Boolean);
-                }
 
-                setSecondaryDescription(
-                    secondaryEntry
-                        ? secondaryEntry.flavor_text.replace(/\f/g, " ").replace(/POK[eé]MON/gi, "Pokémon")
-                        : ""
-                );
-                setSecondaryDescriptionVersion(secondaryEntry?.version?.name ?? "");
+                    setSecondaryDescription(
+                        secondaryEntry
+                            ? secondaryEntry.flavor_text.replace(/\f/g, " ").replace(/POK[eé]MON/gi, "Pokémon")
+                            : ""
+                    );
+                    setSecondaryDescriptionVersion(secondaryEntry?.version?.name ?? "");
+                }
             } catch {
                 setDescription("No description available.");
                 setDescriptionVersion("");
