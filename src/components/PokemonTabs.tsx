@@ -30,10 +30,13 @@ const PokemonTabs = forwardRef<PokemonTabsHandle, PokemonTabsProps>(({ darkMode 
     }));
 
     // Open or activate a tab for a Pokémon
+    const MAX_TABS = 21;
+
     function openTab(pokemon: Pokemon) {
         setTabs((prev) => {
             if (prev.find((p) => p.id === pokemon.id)) return prev;
-            return [...prev, pokemon];
+            const newTabs = prev.length >= MAX_TABS ? prev.slice(1) : prev;
+            return [...newTabs, pokemon];
         });
         setActiveTabId(pokemon.id);
         setMinimized(false);
